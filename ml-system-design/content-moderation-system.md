@@ -181,28 +181,27 @@ latency-critical path, a heavier model runs after the fact against everything. T
 brief exposure window for lower-severity violations, accepted so no upload is held hostage to
 the slowest, heaviest model in the pipeline.
 
-**Human-in-the-loop design.** Three mechanisms keep the review queue tractable given that
-reviewer capacity is fixed and demand isn't. First, confidence-threshold routing: only content
-in the genuinely uncertain score band, or above a severity threshold regardless of confidence,
-reaches a human — anything the model is confidently right about, in either direction, is
-auto-actioned. Second, queue prioritization by expected reach/virality rather than FIFO order:
-an item with a thousand views waiting behind an item about to go viral is the wrong order to
-review in, so `priority_score` actively reorders the queue as reach signals change, not just at
-enqueue time. Third, active learning for the labeling pipeline itself: rather than randomly
-sampling content for reviewers to label as new training data, the system preferentially samples
-the cases the current model is most uncertain about, since those examples move the decision
-boundary the most per labeling dollar spent — random sampling mostly relabels cases the model
-already gets right.
+**Human-in-the-loop design.** Three mechanisms keep the review queue tractable given fixed
+reviewer capacity and unbounded demand. Confidence-threshold routing: only content in the
+genuinely uncertain score band, or above a severity threshold regardless of confidence, reaches
+a human — anything the model is confidently right about, in either direction, is auto-actioned.
+Queue prioritization by expected reach/virality rather than FIFO: an item with a thousand views
+waiting behind an item about to go viral is the wrong order to review in, so `priority_score`
+actively reorders the queue as reach signals change, not just at enqueue time. Active learning
+for the labeling pipeline: rather than randomly sampling content for reviewers to label as new
+training data, the system preferentially samples the cases the current model is most uncertain
+about, since those examples move the decision boundary the most per labeling dollar spent —
+random sampling mostly relabels cases the model already gets right.
 
 **Adversarial evasion.** Unlike a stable prediction task, content moderation faces an adversary
 that actively iterates against the deployed filter — slightly modified images, coded-language
 substitutions, borderline framing designed to sit just under the auto-action threshold. A
 classifier that performed well at launch degrades over time purely because bad actors probe and
-adapt to it, not because the underlying data distribution drifted on its own. This means the
-classifier can't be treated as a static artifact retrained on a slow, infrequent cadence the way
-a more stable task might be — it needs a continuous retraining loop fed by fresh reviewer
-decisions (`review_decisions` in the data model) and regular adversarial red-teaming to find and
-patch current evasion patterns before they scale.
+adapt to it, not because the underlying data distribution drifted on its own. The classifier
+can't be treated as a static artifact retrained on a slow, infrequent cadence the way a more
+stable task might be — it needs a continuous retraining loop fed by fresh reviewer decisions
+(`review_decisions` in the data model) and regular adversarial red-teaming to find and patch
+evasion patterns before they scale.
 
 ## Bottlenecks & Scaling
 
