@@ -31,35 +31,6 @@ Each label is one real example.
 
 ## ML system design
 
-As an example, this is the high-level architecture from
-[llm-inference-serving](ml-system-design/llm-inference-serving.md), redrawn in Mermaid:
-
-```mermaid
-flowchart TB
-    client([Client])
-    router["API gateway / router<br/>load-aware, picks a replica for the model version"]
-    subgraph replica["Inference server replica, e.g. 4 GPUs with tensor parallelism"]
-        sched["Scheduler<br/>continuous batching: admits new requests every iteration"]
-        prefill["Prefill<br/>processes the full prompt, fills the KV cache"]
-        decode["Decode<br/>one token per sequence per iteration"]
-        kv[("Paged KV cache<br/>fixed-size pages, allocated as a sequence grows")]
-        sched --> prefill --> decode
-        prefill --> kv
-        decode <--> kv
-    end
-    out(["Tokens streamed back to the client (SSE)"])
-    subgraph fleet["Fleet management"]
-        autoscaler["Autoscaler<br/>scales on queue depth and tokens in flight, not raw QPS"]
-        registry[("Model registry<br/>weights pulled from object storage")]
-    end
-
-    client -->|"POST /v1/completions"| router
-    router --> replica
-    replica --> out
-    autoscaler -.->|"adds or removes replicas"| replica
-    registry -.->|"weights, sharded per tensor-parallel rank"| replica
-```
-
 ### LLM and retrieval
 
 | Doc | Summary |
@@ -113,6 +84,32 @@ flowchart TB
 | [ad-click-prediction](ml-system-design/ad-click-prediction.md) | Predict the click probability (pCTR) of each candidate ad for every ad request; pCTR feeds the ad auction directly. |
 | [fraud-detection-system](ml-system-design/fraud-detection-system.md) | Score every payment transaction inline in the authorization path, and approve, decline or send it to manual review. |
 | [content-moderation-system](ml-system-design/content-moderation-system.md) | Classify uploaded text, images, video and audio against a policy taxonomy, with a confidence score per category. |
+
+### Example: LLM inference serving
+
+This is the high-level architecture from
+[llm-inference-serving](ml-system-design/llm-inference-serving.md), redrawn in Mermaid:
+
+```mermaid
+flowchart TB
+    client(["Client<br/>POST /v1/completions"])
+    router["API gateway / router<br/>picks a replica for the model version, load-aware"]
+    autoscaler["Autoscaler<br/>watches queue depth and tokens in flight, not raw QPS"]
+    registry[("Model registry<br/>weights in object storage")]
+    subgraph replica["Inference server replica, e.g. 4 GPUs with tensor parallelism"]
+        direction LR
+        sched["Scheduler<br/>continuous batching"] --> prefill["Prefill<br/>processes the prompt"] --> decode["Decode<br/>one token per sequence per iteration"]
+    end
+    kv[("Paged KV cache<br/>fixed-size pages: prefill fills it, decode grows it")]
+    out(["Tokens streamed back to the client (SSE)"])
+
+    client --> router
+    router --> replica
+    replica <--> kv
+    replica --> out
+    autoscaler -.->|"adds or removes replicas"| replica
+    registry -.->|"weights, sharded per tensor-parallel rank"| replica
+```
 
 ## Case studies
 

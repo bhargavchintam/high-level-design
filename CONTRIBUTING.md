@@ -55,13 +55,18 @@ Draw new diagrams in Mermaid, inside a fenced code block that starts with `` ```
 it, and it diffs like text. Older docs use ASCII diagrams; turning one into Mermaid is a welcome change.
 
 - Every box must be a component the doc describes, with the same name it has in the text.
-- Label each edge with what flows on it: requests, events, tokens, weights.
+- Label an edge with what flows on it (requests, events, tokens, weights) when the boxes do not
+  already make it clear. Each label adds height, so skip labels that only repeat the box names.
 - Keep one diagram to one path, for example the request path or the fleet-management loop. Split it
   when it grows past about 12 boxes.
 - Use the same shapes as the README example: `([Client])` for clients, `[("Store")]` for databases and
   caches, a `subgraph` for a group such as one replica, and dotted edges (`-.->`) for control paths.
+- GitHub scales a diagram to the page width, so a long chain of boxes ends up very tall (top to
+  bottom) or very small (left to right). A `subgraph` can set its own `direction` to fold the chain,
+  but Mermaid ignores it when a node inside the subgraph links to a node outside it. Link to the
+  subgraph itself instead, as the README example does.
 
-The LLM serving diagram in the [README](README.md#ml-system-design) is a good model to copy.
+The [LLM serving diagram](README.md#example-llm-inference-serving) in the README is a good model to copy.
 
 ## Ideas that would fit
 
