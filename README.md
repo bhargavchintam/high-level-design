@@ -35,11 +35,10 @@ As an example, this is the high-level architecture from
 [llm-inference-serving](ml-system-design/llm-inference-serving.md), redrawn in Mermaid:
 
 ```mermaid
-flowchart LR
+flowchart TB
     client([Client])
-    router["API gateway / router<br/>picks a replica for the model version, load-aware"]
+    router["API gateway / router<br/>load-aware, picks a replica for the model version"]
     subgraph replica["Inference server replica, e.g. 4 GPUs with tensor parallelism"]
-        direction TB
         sched["Scheduler<br/>continuous batching: admits new requests every iteration"]
         prefill["Prefill<br/>processes the full prompt, fills the KV cache"]
         decode["Decode<br/>one token per sequence per iteration"]
@@ -48,13 +47,15 @@ flowchart LR
         prefill --> kv
         decode <--> kv
     end
-    autoscaler["Autoscaler<br/>scales on queue depth and tokens in flight, not raw QPS"]
-    registry[("Model registry<br/>weights pulled from object storage")]
+    out(["Tokens streamed back to the client (SSE)"])
+    subgraph fleet["Fleet management"]
+        autoscaler["Autoscaler<br/>scales on queue depth and tokens in flight, not raw QPS"]
+        registry[("Model registry<br/>weights pulled from object storage")]
+    end
 
     client -->|"POST /v1/completions"| router
-    router --> sched
-    decode -->|"tokens streamed back (SSE)"| client
-    replica -.->|"queue depth, tokens in flight"| autoscaler
+    router --> replica
+    replica --> out
     autoscaler -.->|"adds or removes replicas"| replica
     registry -.->|"weights, sharded per tensor-parallel rank"| replica
 ```
