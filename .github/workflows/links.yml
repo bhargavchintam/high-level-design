@@ -1,0 +1,23 @@
+name: links
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      # Every relative link must point to a file that exists, and other docs
+      # must be linked rather than named in plain text.
+      - name: Check the links between the docs
+        run: python scripts/check_links.py

@@ -1,6 +1,7 @@
 # high-level-design
 
 [![license](https://img.shields.io/badge/license-CC%20BY%204.0-2ea44f)](LICENSE)
+[![links](https://github.com/bhargavchintam/high-level-design/actions/workflows/links.yml/badge.svg)](https://github.com/bhargavchintam/high-level-design/actions/workflows/links.yml)
 
 System design notes I kept while prepping, in three parts:
 
