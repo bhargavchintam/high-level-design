@@ -31,7 +31,7 @@ front to absorb raw connection volume, then L7 for anything content-aware.
 - Least response time: like least connections but factors in observed latency too.
 - IP hash / consistent hashing: derive the backend from a hash of the client IP or a request
   key, so the same client (or key) keeps landing on the same backend. Needed for sticky
-  sessions and for cache-friendly routing. See consistent-hashing.md for the rebalancing
+  sessions and for cache-friendly routing. See [consistent-hashing.md](consistent-hashing.md) for the rebalancing
   problem this solves.
 - Random with two choices: pick two backends at random, send to whichever has less load.
   Surprisingly close to optimal least-connections behavior with much less coordination

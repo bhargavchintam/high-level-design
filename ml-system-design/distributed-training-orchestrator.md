@@ -4,7 +4,7 @@
 
 ### Functional
 - Schedule many concurrent, independent training jobs (each itself internally parallelized per
-  distributed-training-system.md) onto a shared multi-tenant GPU cluster, admitting a job only
+  [distributed-training-system.md](distributed-training-system.md)) onto a shared multi-tenant GPU cluster, admitting a job only
   when its full required resource set is available as one atomic allocation — gang scheduling —
   not partially.
 - Support elastic training jobs whose world size (number of participating workers/GPUs) can grow
@@ -35,7 +35,7 @@
 ## Capacity Estimation
 
 Cluster: 10,000 GPUs across ~1,250 nodes (8 GPUs/node) — larger than any single training run in
-distributed-training-system.md's 2,048-GPU example, because this is the shared multi-tenant pool
+[distributed-training-system.md](distributed-training-system.md)'s 2,048-GPU example, because this is the shared multi-tenant pool
 many such runs draw from concurrently, not one run's dedicated allocation.
 
 **Concurrent jobs.** Assume 60 concurrent training jobs at any time, spanning a wide size
@@ -58,10 +58,10 @@ platform-wide to ingest and compare against peer ranks within the same job — c
 but latency-sensitive: a straggler needs to be caught within a handful of steps, not after hours
 of quietly degraded throughput.
 
-**Checkpoint coordination load.** Per distributed-training-system.md, a large job checkpoints
+**Checkpoint coordination load.** Per [distributed-training-system.md](distributed-training-system.md), a large job checkpoints
 roughly every 20-30 minutes. Across 60 concurrent jobs staggered in time, that's on the order of
 **2-3 checkpoint events/minute cluster-wide** the orchestrator needs visibility into — not to move
-checkpoint bytes (already sized in distributed-training-system.md), but to know timing: avoiding
+checkpoint bytes (already sized in [distributed-training-system.md](distributed-training-system.md)), but to know timing: avoiding
 triggering a preemption mid-checkpoint-write, and knowing each job's last-checkpoint recency when
 deciding preemption/eviction order.
 
@@ -188,14 +188,14 @@ fit into currently-free capacity *and* will complete or release before the reser
 allowed to run in the gap, so the large job's wait doesn't leave capacity sitting idle in the
 meantime.
 
-**Elastic training orchestration.** This system and distributed-training-system.md split the
+**Elastic training orchestration.** This system and [distributed-training-system.md](distributed-training-system.md) split the
 elastic-training problem cleanly along a control-plane/data-plane boundary. The orchestrator
 decides *when* and *by how much* to resize a job — a capacity-availability and scheduling-policy
 decision — and handles the mechanics of handing new or removed nodes to the job's process group.
 The training framework running inside the job (not this system) handles the actual world-size-
 change math: re-sharding ZeRO-partitioned optimizer state and gradients across the new rank count,
 adjusting data-parallel degree, and resuming the training loop with a consistent view of progress —
-exactly the mechanics covered in distributed-training-system.md. This split matters for a concrete
+exactly the mechanics covered in [distributed-training-system.md](distributed-training-system.md). This split matters for a concrete
 scheduling reason: elastic jobs are strongly preferred preemption and backfill targets over
 non-elastic ones, because shrinking an elastic job to free some of its capacity is far cheaper —
 in both lost progress and orchestration complexity — than fully evicting and later fully
@@ -203,7 +203,7 @@ re-admitting a non-elastic job's entire fixed-size allocation.
 
 **Checkpoint/restore orchestration at the scheduling layer.** The orchestrator deliberately does
 not own checkpoint mechanics — what's actually in a checkpoint, how it's sharded, how fast it can
-be written, are all distributed-training-system.md's concerns. What the orchestrator does own is
+be written, are all [distributed-training-system.md](distributed-training-system.md)'s concerns. What the orchestrator does own is
 checkpoint *timing* relative to scheduling decisions. Ahead of a planned preemption (a
 higher-priority job needs this capacity), the orchestrator triggers an out-of-band checkpoint via
 `/checkpoint-now` so the evicted job loses only the partial progress made since its last regular
@@ -235,7 +235,7 @@ first, or submits continuously, can monopolize the cluster indefinitely under na
 scheduling even without doing anything wrong by their own local logic. Fair-share and
 priority-class queuing address this at admission time; preemption policy addresses the harder case
 of a long-running lower-priority job that's already running when a higher-priority need arrives.
-The same starvation guardrail used for priority-preemption in gpu-fleet-autoscaler.md applies here:
+The same starvation guardrail used for priority-preemption in [gpu-fleet-autoscaler.md](gpu-fleet-autoscaler.md) applies here:
 preemption frequency per victim job is bounded, so a persistently high-priority demand stream can
 reclaim capacity from a lower-priority job without being able to prevent that job from ever making
 meaningful forward progress at all — priority isolation protects the high-priority job's needs, and
@@ -246,14 +246,14 @@ the bounded-frequency guardrail protects the low-priority job's right to eventua
 Scheduling decision latency has to stay well under training step time at cluster scale, which
 directly bounds how sophisticated the placement solver can be per individual decision — this is
 the same incremental-placement-plus-periodic-defragmentation tradeoff described in
-gpu-fleet-autoscaler.md, applied here against a gang-scheduling all-or-nothing constraint rather
+[gpu-fleet-autoscaler.md](gpu-fleet-autoscaler.md), applied here against a gang-scheduling all-or-nothing constraint rather
 than a general fractional-GPU packing one. Fragmentation risk scales with job-size heterogeneity —
 a cluster running only uniformly-sized jobs rarely fragments meaningfully, while one running both
 8-GPU and 2,048-GPU jobs concurrently fragments readily — which makes periodic defragmentation
 (draining and repacking to consolidate scattered free capacity) a recurring operational necessity
 on a real-world cluster rather than a rare event. Straggler-detection sensitivity trades off
 against false-positive rate in essentially the same way alert-threshold tuning does in
-ml-monitoring-and-drift.md — set too sensitive, and ordinary step-time jitter triggers unnecessary
+[ml-monitoring-and-drift.md](ml-monitoring-and-drift.md) — set too sensitive, and ordinary step-time jitter triggers unnecessary
 node-replacement churn that itself costs throughput; set too conservative, and a genuine straggler
 silently caps a job's throughput for a long time before the detector catches it. Finally, elastic-
 job resize frequency is itself a throughput cost, not a free lever — every resize incurs a

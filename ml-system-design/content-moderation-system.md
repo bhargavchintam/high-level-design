@@ -113,7 +113,7 @@ review_decisions (feeds back into training)
 `priority_score` is recomputed as `expected_reach` changes — a piece of content that starts
 gaining rapid engagement while sitting in the queue gets promoted — which is why the review
 queue is a live priority structure rather than a static ordering assigned once at enqueue time.
-`content_store` is sharded by content_id (see concepts/database-sharding.md) since access is
+`content_store` is sharded by content_id (see [concepts/database-sharding.md](../concepts/database-sharding.md)) since access is
 almost always a point lookup by id, never a range scan.
 
 ## High-Level Architecture
@@ -166,7 +166,7 @@ joint model can in principle capture richer cross-modal interactions (a sarcasti
 undercutting a benign image), but it couples every modality's release cycle together and makes
 root-causing a regression far harder, which is why the fusion-of-independent-models pattern
 dominates in practice; a joint model, if used at all, tends to be a later refinement layered on
-top rather than the initial architecture (see also concepts/model-serving-patterns.md for
+top rather than the initial architecture (see also [concepts/model-serving-patterns.md](../concepts/model-serving-patterns.md) for
 versioning and independent-deploy patterns generally).
 
 **Tiered latency design.** Running the full multimodal pipeline (per-modality models plus
@@ -176,7 +176,7 @@ scrutiny before going live. The system splits into a small, fast, high-precision
 gates publish for a narrow set of severe/legal-risk categories only — where even brief exposure
 is unacceptable — and a slower, more thorough async scan that runs against everything after it's
 already live, covering the much broader taxonomy. This mirrors the sync-score / async-deeper-
-analysis split in ml-system-design/fraud-detection-system.md: a cheap model gates the
+analysis split in [ml-system-design/fraud-detection-system.md](fraud-detection-system.md): a cheap model gates the
 latency-critical path, a heavier model runs after the fact against everything. The tradeoff is a
 brief exposure window for lower-severity violations, accepted so no upload is held hostage to
 the slowest, heaviest model in the pipeline.
@@ -213,7 +213,7 @@ timescale of a traffic spike. Every design choice upstream — the confidence th
 what reaches a human, the fusion model's precision, the priority function — exists specifically
 to protect that fixed ceiling, the opposite of most scaling problems in this repo where the
 bottleneck can eventually be solved by throwing hardware at it (compare to the ranking-stage GPU
-fleet in ml-system-design/recommendation-system.md, which scales with spend; this one doesn't).
+fleet in [ml-system-design/recommendation-system.md](recommendation-system.md), which scales with spend; this one doesn't).
 
 Video is the second bottleneck, on the compute and storage side. At 1 PB/day raw ingest and
 600M scored frames/day even under aggressive sampling, exhaustive frame-by-frame scanning would

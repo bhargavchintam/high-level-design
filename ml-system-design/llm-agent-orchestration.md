@@ -38,7 +38,7 @@ context — call it 3K input tokens / 500 output tokens per call as a task-level
 
 Total LLM calls/day: 500K × 8 = **4M calls/day** → 4M / 86,400 ≈ 46/sec average, ~140/sec peak
 (3x). Token volume: input 4M × 3K = 12B tokens/day, output 4M × 500 = 2B tokens/day → **14B
-tokens/day** total (see llm-inference-serving.md for what serving this volume costs downstream).
+tokens/day** total (see [llm-inference-serving.md](llm-inference-serving.md) for what serving this volume costs downstream).
 
 Tool calls: assume 60% of steps invoke a tool rather than reasoning purely in-context → 4M × 0.6
 ≈ 2.4M tool calls/day → 2.4M / 86,400 ≈ 28/sec average, ~83/sec peak.
@@ -55,7 +55,7 @@ live state for the duration of its run.
 
 **Long-term memory store.** Assume 10M distinct agent/user identities, each with a rolling window
 of recent interactions summarized into roughly 2KB of retrievable memory: 10M × 2KB = 20 GB,
-embedded and indexed for retrieval (see vector-search-system.md for the ANN mechanics this reuses)
+embedded and indexed for retrieval (see [vector-search-system.md](vector-search-system.md) for the ANN mechanics this reuses)
 — small relative to the LLM call volume above, but on the query hot path for any task that pulls
 long-term context.
 
@@ -194,7 +194,7 @@ the retry itself becomes the bug (the email gets sent twice, not zero or one tim
 holds — the running transcript of steps, tool results, and reasoning for this one run, evicted the
 moment the task completes. Long-term memory is retrieved on demand, not held in context by
 default: a vector-indexed store of summarized past interactions for this agent/user, queried the
-same way a RAG system queries a document corpus (see rag-system.md for the retrieval mechanics),
+same way a RAG system queries a document corpus (see [rag-system.md](rag-system.md) for the retrieval mechanics),
 pulled into the prompt only for the steps that need cross-session context. The two need different
 handling as a task grows long: a task accumulating verbose tool outputs (a large search result, a
 long log dump) faster than the fixed context window can hold verbatim requires active compaction —
@@ -233,7 +233,7 @@ past.
 LLM call latency dominates per-step latency and is therefore the primary lever on task wall-clock —
 concurrent fan-out of independent steps is the main throughput tool available, since reducing
 individual call latency further runs into the same serving constraints covered in
-llm-inference-serving.md. The reflection/replan step recurs on every step and its cost multiplies
+[llm-inference-serving.md](llm-inference-serving.md). The reflection/replan step recurs on every step and its cost multiplies
 directly with retries, which is why bounding replan attempts is a cost control as much as a
 correctness one — an unbounded replan loop is functionally a cost-runaway bug even when every
 individual replan call is cheap. Tool executor capacity needs to scale independently from the

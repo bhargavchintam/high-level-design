@@ -1,10 +1,10 @@
 # Feature Engineering Platform
 
-This is the layer upstream of feature-store.md: that document covers the online/offline *store*
+This is the layer upstream of [feature-store.md](feature-store.md): that document covers the online/offline *store*
 and the point-in-time-correctness contract it serves reads under; this one covers the streaming
 and batch *pipelines* that compute the values landing in that store, and the org-wide tooling
 (definition framework, catalog, backfill, versioning) that lets hundreds of engineers produce
-features without each hand-building two parallel compute paths. Read feature-store.md first if
+features without each hand-building two parallel compute paths. Read [feature-store.md](feature-store.md) first if
 you haven't — this document assumes and extends its online/offline split rather than re-deriving
 it.
 
@@ -15,7 +15,7 @@ it.
   it compiled automatically into both a streaming pipeline (real-time updates) and a batch
   pipeline (historical backfill and periodic recompute) — without hand-writing two independent
   implementations that can silently drift apart (the concrete mechanism behind
-  feature-store.md's training-serving-skew mitigation, not just a restatement of the problem).
+  [feature-store.md](feature-store.md)'s training-serving-skew mitigation, not just a restatement of the problem).
 - Backfill historical values for a newly-defined feature across the retention window, so it's
   usable in training immediately rather than only accumulating forward from the moment it's
   defined.
@@ -34,7 +34,7 @@ it.
   event sources.
 - Schema/definition changes are backward compatible by default — existing consumers pinned to a
   version keep working unchanged — the same enforced-immutability principle as
-  feature-store.md's `event_timestamp`-keyed store, applied one layer up to the definition itself.
+  [feature-store.md](feature-store.md)'s `event_timestamp`-keyed store, applied one layer up to the definition itself.
 - Pipeline health (freshness-SLA violations, schema drift, backfill failures) must be independently
   alertable per feature, not just visible as an aggregate pipeline-health signal — a single
   silently-broken feature can degrade one model's quality without moving any platform-wide metric.
@@ -43,7 +43,7 @@ it.
 
 **Aggregate ingestion volume.** This platform aggregates event sources across the whole org, not
 one product surface — assume ~2B raw events/day (an order of magnitude above
-feature-store.md's single-source 200M/day example, consistent with many teams' event streams
+[feature-store.md](feature-store.md)'s single-source 200M/day example, consistent with many teams' event streams
 feeding the same platform) → 2,000,000,000 / 86,400 ≈ **23,000 events/sec average, ~70,000/sec
 peak**.
 
@@ -67,7 +67,7 @@ low-single-digit-day window in practice.
 
 **Catalog/metadata load.** A few hundred feature definitions with rich metadata, queried
 interactively by engineers browsing/searching — structurally the same low-volume,
-high-read-value shape as ml-experiment-tracking-platform.md's run-metadata store, and never a
+high-read-value shape as [ml-experiment-tracking-platform.md](ml-experiment-tracking-platform.md)'s run-metadata store, and never a
 capacity concern at this scale.
 
 ## API Design
@@ -93,7 +93,7 @@ GET  /v1/pipelines/{feature_id}/health
 ```
 
 This API is entirely about defining and operating the pipelines that *produce* feature values —
-it's deliberately distinct from feature-store.md's `get-features` / `get-historical-features`
+it's deliberately distinct from [feature-store.md](feature-store.md)'s `get-features` / `get-historical-features`
 read API, which is about *consuming* the values these pipelines write.
 
 ## Data Model
@@ -155,7 +155,7 @@ catalog_index (denormalized, search-optimized view over feature_definition
 ## Deep Dives
 
 **One definition, two compiled pipelines.** This is the structural fix for
-feature-store.md's training-serving-skew problem, not just a description of it: a declarative
+[feature-store.md](feature-store.md)'s training-serving-skew problem, not just a description of it: a declarative
 transformation like `windowed_agg(clicks, window=1h, fn=count)` is compiled by the platform itself
 into both a streaming execution plan and a batch execution plan, so the online and offline paths
 are generated from one source of truth rather than independently hand-written and prone to
@@ -187,7 +187,7 @@ type or distribution silently diverging from what the definition declares — e.
 that used to always be non-null starting to arrive null) is flagged independently. Both failure
 modes are invisible to any downstream model's own quality metrics until predictions have already
 degraded, which makes this pipeline-level monitoring the upstream complement to
-ml-monitoring-and-drift.md's downstream, model-output-focused drift detection — a broken feature
+[ml-monitoring-and-drift.md](ml-monitoring-and-drift.md)'s downstream, model-output-focused drift detection — a broken feature
 pipeline and a genuine real-world distribution shift can look identical from a model's output
 alone, and distinguishing the two requires exactly this kind of pipeline-side instrumentation
 watching the input side, not just the output side.
@@ -206,11 +206,11 @@ deprecation candidates — as much a compute-cost control at platform scale as a
 Streaming infrastructure has to scale with raw event volume across every source feeding every
 feature definition combined, independent of how many downstream models actually consume the
 results — the same "producers don't know or care how many consumers exist" scaling shape as any
-pub-sub ingestion layer (cross-ref concepts/message-queues.md). Backfill jobs are the component
+pub-sub ingestion layer (cross-ref [concepts/message-queues.md](../concepts/message-queues.md)). Backfill jobs are the component
 most likely to become a shared-infrastructure bottleneck as feature count grows, since each new
 feature potentially needs its own historical backfill competing for the same batch-processing
 capacity as every other team's backfills and retraining jobs — the same scarce-shared-batch-
-capacity pattern gpu-cluster-scheduler.md manages for GPU jobs, here applied to CPU-bound batch
+capacity pattern [gpu-cluster-scheduler.md](gpu-cluster-scheduler.md) manages for GPU jobs, here applied to CPU-bound batch
 compute, and worth quota-managing for the same reason. The compiler that generates both pipelines
 from one definition is a single point of correctness leverage for the whole platform — a bug in
 how it handles a particular transformation type propagates into every feature using that pattern —

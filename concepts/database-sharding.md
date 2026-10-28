@@ -7,7 +7,7 @@ usually when write throughput or total data size outgrows a single primary.
 
 ## Why not just replicate
 
-Replication (see replication-and-consistency.md) copies the same data to multiple machines
+Replication (see [replication-and-consistency.md](replication-and-consistency.md)) copies the same data to multiple machines
 and helps with read throughput and availability, but every replica still holds 100% of the
 data and the primary still takes 100% of the writes. Sharding is the only way to scale writes
 and total storage horizontally, because each shard only owns a slice of the data.
@@ -18,7 +18,7 @@ and total storage horizontally, because each shard only owns a slice of the data
   2). Simple, and range queries within a shard are efficient. Downside: uneven distribution —
   if IDs are assigned sequentially, all new writes hit the last shard (hotspot).
 - Hash-based: hash the shard key and mod by shard count (or use consistent hashing, see
-  consistent-hashing.md). Distributes load evenly, but range queries now have to fan out to
+  [consistent-hashing.md](consistent-hashing.md)). Distributes load evenly, but range queries now have to fan out to
   every shard.
 - Directory-based: a lookup service maps each key to its shard explicitly. Flexible — you can
   rebalance individual keys — but the directory becomes a critical dependency and a potential
@@ -51,7 +51,7 @@ cross-shard queries on every request.
 
 Adding shards later means moving data, and naive hash-mod resharding (`hash(key) % N`)
 reshuffles almost every key when N changes. This is the exact problem consistent hashing
-solves — see consistent-hashing.md. Many systems also over-provision logical shards (e.g. 4096
+solves — see [consistent-hashing.md](consistent-hashing.md). Many systems also over-provision logical shards (e.g. 4096
 hash slots mapped to a smaller number of physical nodes, as Redis Cluster does) so that
 rebalancing means moving slot ownership, not rehashing every key.
 

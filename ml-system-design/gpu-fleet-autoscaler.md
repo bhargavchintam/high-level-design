@@ -51,7 +51,7 @@ center (see deep dive).
 **Boot latency.** GPU node provisioning (cloud instance boot, GPU driver init, container/runtime
 pull) runs 3-5 minutes; loading a large model's weights onto that node adds another 1-3 minutes
 (pulled from object storage, the same weight-loading path described in
-llm-inference-serving.md) → **total scale-up latency of roughly 4-8 minutes**, decision to
+[llm-inference-serving.md](llm-inference-serving.md)) → **total scale-up latency of roughly 4-8 minutes**, decision to
 capacity actually serving traffic.
 
 **Predictive scaling horizon.** To fully absorb the 4-8 minute boot floor, forecast-driven
@@ -170,7 +170,7 @@ time-slicing) is a meaningful share of total achievable utilization at this flee
 ## Deep Dives
 
 **Reactive vs. predictive scaling and the boot-latency floor.** Queue-depth-based reactive scaling
-— the mechanism a single-service autoscaler like the one in llm-inference-serving.md relies on —
+— the mechanism a single-service autoscaler like the one in [llm-inference-serving.md](llm-inference-serving.md) relies on —
 is necessary but structurally insufficient at fleet scale for one reason: a decision made the
 instant load crosses a threshold still takes 4-8 minutes to turn into serving capacity, and a
 burst of demand rarely waits politely for that window. Predictive scaling closes this gap by
@@ -205,7 +205,7 @@ of that workload's own interruption tolerance, not a platform-wide spot percenta
 workloads under a tight latency SLA typically run mostly on-demand with only a modest spot
 fraction (since a preemption has to be masked from the end user within seconds), while training
 and batch workloads, which already have to tolerate node failure as a routine event (see
-distributed-training-system.md), can run a much larger fraction on spot at a meaningful cost
+[distributed-training-system.md](distributed-training-system.md)), can run a much larger fraction on spot at a meaningful cost
 discount. The two workload classes need genuinely different preemption responses, not a shared
 generic one: inference relies on fast failover, where the load balancer simply stops routing to
 the draining replica and traffic redistributes across remaining replicas while a replacement is

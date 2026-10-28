@@ -39,7 +39,7 @@ onto its one clockwise neighbor.
   each key is stored on the N nodes walking clockwise from its ring position.
 - Load balancers: hashing a client ID or session key to a backend, so the same client
   consistently reaches the same backend without a shared session table (see
-  load-balancing.md).
+  [load-balancing.md](load-balancing.md)).
 
 ## Tradeoffs
 

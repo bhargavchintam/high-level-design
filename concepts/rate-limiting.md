@@ -32,7 +32,7 @@ requests/day, paid tier gets 100,000.
 - Client-side: cooperative only, doesn't stop a malicious or buggy client, but reduces
   needless server load from well-behaved ones.
 - API gateway / edge: the standard place — reject over-limit requests before they consume any
-  backend capacity. See api-gateway.md.
+  backend capacity. See [api-gateway.md](api-gateway.md).
 - Per-service: finer-grained limits closer to the resource being protected (e.g. a
   particularly expensive search endpoint gets a tighter limit than the rest of the API).
 
@@ -52,5 +52,5 @@ turning a limiter outage into a full outage.
 
 Return `429 Too Many Requests` with a `Retry-After` header so well-behaved clients know when
 to try again, and expose `X-RateLimit-Limit` / `X-RateLimit-Remaining` headers so clients can
-self-throttle before hitting the wall. See case-studies/rate-limiter.md for a full system
+self-throttle before hitting the wall. See [case-studies/rate-limiter.md](../case-studies/rate-limiter.md) for a full system
 design around this, including how the algorithm choice changes under multi-region deployment.

@@ -1,6 +1,6 @@
 # Model Monitoring and Drift
 
-A model that passed every eval gate and canary check at rollout (mlops-and-model-cicd.md) can
+A model that passed every eval gate and canary check at rollout ([mlops-and-model-cicd.md](mlops-and-model-cicd.md)) can
 still degrade in production weeks later without a single line of code changing, because the thing
 it was trained to model — the input distribution, or the relationship between inputs and outcomes
 — keeps moving after training stops. Monitoring exists to detect that movement before it shows up
@@ -19,7 +19,7 @@ so a previously-predictive pattern stops meaning what it used to), detectable on
 ground-truth labels. A model can suffer serious concept drift with zero measurable data drift,
 which is why performance-against-labels monitoring is a genuinely separate pipeline from
 feature-distribution monitoring, not a redundant one — see
-../ml-system-design/ml-monitoring-and-drift.md for the full two-pipeline architecture (a
+[../ml-system-design/ml-monitoring-and-drift.md](../ml-system-design/ml-monitoring-and-drift.md) for the full two-pipeline architecture (a
 label-join pipeline for the delayed, ground-truth path; a distribution aggregator for the
 label-free path) this distinction drives.
 
@@ -66,9 +66,9 @@ than not monitoring at all, since it creates false confidence that degradation w
 ## What monitoring feeds
 
 Drift and performance signals aren't just dashboards — they're inputs to the rollback and
-promotion decisions in mlops-and-model-cicd.md (a model already at 100% traffic that starts
+promotion decisions in [mlops-and-model-cicd.md](mlops-and-model-cicd.md) (a model already at 100% traffic that starts
 showing concept drift is a rollback or retrain trigger, not just an FYI) and the natural comparison
-point for shadow deployment (model-serving-patterns.md), which feeds a candidate's predictions into
+point for shadow deployment ([model-serving-patterns.md](model-serving-patterns.md)), which feeds a candidate's predictions into
 the same monitoring infrastructure before it ever takes real traffic. Monitoring that's disconnected
 from those downstream actions — drift detected but nothing automated or on-call reacts to it — has
 all the engineering cost of the pipeline with none of the safety benefit.

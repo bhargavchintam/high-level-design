@@ -117,7 +117,7 @@ within a geographic cell (the same geohash/H3 cells used for matching double as 
 aggregation unit). This is a streaming aggregation problem — count requests and available
 drivers per cell over a sliding recent window, recompute a multiplier periodically (every
 minute or so, not per-request, to avoid price flapping) — more akin to the stream-processing
-pattern in case-studies/distributed-message-queue.md than to a synchronous per-request
+pattern in [case-studies/distributed-message-queue.md](distributed-message-queue.md) than to a synchronous per-request
 calculation.
 
 **Location update volume.** At 1.25M pings/sec, the location service is the highest-QPS

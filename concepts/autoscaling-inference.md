@@ -14,13 +14,13 @@ Raw GPU utilization looks saturated at 100% both when a replica is doing useful 
 when it's memory-bound and stalling on KV cache pressure rather than compute — a batch of one
 short request can peg utilization briefly without meaning the replica is actually near capacity,
 and a replica juggling many long sequences can show moderate compute utilization while its KV
-cache (kv-cache-management.md) is the real thing about to run out. Request count is similarly
+cache ([kv-cache-management.md](kv-cache-management.md)) is the real thing about to run out. Request count is similarly
 misleading for LLM-style workloads: a 50-token completion and a 4,000-token completion are "one
 request" each but differ by up to 80x in GPU-time consumed, so scaling on QPS either
 under-provisions for a burst of long generations or over-provisions for a burst of short ones. The
 signal that actually tracks load is queue depth (or tokens-in-flight, or an estimated
 time-to-drain the current queue at current throughput) per replica — see
-../ml-system-design/llm-inference-serving.md's autoscaling section for the concrete case. This
+[../ml-system-design/llm-inference-serving.md](../ml-system-design/llm-inference-serving.md)'s autoscaling section for the concrete case. This
 generalizes past LLMs: any workload with heterogeneous per-request cost should scale on a
 work-remaining signal, not a request-count or plain-utilization one.
 
@@ -67,8 +67,8 @@ component, fast reactive headroom for the unpredictable residual.
 
 ## Where it fits
 
-Autoscaling decides how many replicas exist; gpu-scheduling.md decides which physical GPUs those
-replicas land on and how tightly they pack against everything else in the cluster; load-balancing.md
+Autoscaling decides how many replicas exist; [gpu-scheduling.md](gpu-scheduling.md) decides which physical GPUs those
+replicas land on and how tightly they pack against everything else in the cluster; [load-balancing.md](load-balancing.md)
 decides how traffic is spread across whichever replicas are currently up. All three have to agree
 for the fleet to behave well under load — an autoscaler that adds replicas the cluster scheduler
 can't actually place (no free GPU meeting the job's NVLink-domain requirement) just produces

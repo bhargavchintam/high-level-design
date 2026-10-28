@@ -5,7 +5,7 @@
 ### Functional
 - Let any team submit a training job (full pretraining, continued pretraining, supervised
   fine-tuning, or preference tuning like DPO) against a shared GPU cluster via a self-service
-  API, without operating its own cluster orchestration — see distributed-training-system.md for
+  API, without operating its own cluster orchestration — see [distributed-training-system.md](distributed-training-system.md) for
   the mechanics of what happens inside one such job once it's running.
 - Automatically derive a parallelism plan (data/tensor/pipeline degree) from the requested model
   size and GPU count, or accept an explicit override from teams that want to hand-tune it.
@@ -18,13 +18,13 @@
   preempt, or delay Job B running on different nodes of the same cluster.
 - Queue and schedule jobs against finite GPU capacity by team quota and priority, with elastic
   resize of a running job's world size when capacity opens up or has to shrink (the scheduling
-  primitives themselves are covered in gpu-cluster-scheduler.md; this platform is a consumer of
+  primitives themselves are covered in [gpu-cluster-scheduler.md](gpu-cluster-scheduler.md); this platform is a consumer of
   that scheduler, not a reimplementation of it).
 
 ### Non-functional
 - Two distinct utilization metrics matter and must both be tracked: per-job MFU (model FLOPs
   utilization, how efficiently a running job uses the GPUs it holds — see
-  distributed-training-system.md) and cluster allocation utilization (what fraction of the
+  [distributed-training-system.md](distributed-training-system.md)) and cluster allocation utilization (what fraction of the
   cluster's GPUs are allocated to *some* job at all, vs. sitting idle in the queue's shadow).
   A platform can have every running job at 45% MFU and still waste money if half the cluster is
   unallocated because of poor scheduling.
@@ -49,7 +49,7 @@ large-fine-tune jobs at ~256 GPUs each (8 × 256 = 2,048 GPUs), and 2 large pret
 the 8,192-GPU cluster allocated — the platform is designed to run hot, with the queue (not idle
 capacity) absorbing demand variance.
 
-**Failure rate the platform must absorb automatically.** distributed-training-system.md notes
+**Failure rate the platform must absorb automatically.** [distributed-training-system.md](distributed-training-system.md) notes
 that a 2,048-GPU cluster running for days-to-weeks sees a failure "every few hours." At 8,192 GPUs
 (4x the hardware), the same failure density implies roughly one failure somewhere in the fleet
 every 30-60 minutes → on the order of **25-45 failure events/day** platform-wide. At that rate,
@@ -66,7 +66,7 @@ occupying a large fraction of the cluster for days at a time than by the number 
 one large pretraining run can visibly extend queue wait times for every smaller job behind it.
 
 **Checkpoint storage bandwidth at platform scale.** Each large job checkpoints roughly 1.1 TB
-every 20-30 minutes on its own (per distributed-training-system.md). With 2 large jobs
+every 20-30 minutes on its own (per [distributed-training-system.md](distributed-training-system.md)). With 2 large jobs
 checkpointing independently but not perfectly staggered, worst-case simultaneous writes are ~2.2
 TB in a write window of a few minutes → **several GB/sec of aggregate checkpoint write bandwidth**
 the shared storage tier must sustain at peak, on top of the mid-size and small jobs' much smaller
@@ -76,7 +76,7 @@ infrastructure, not sized per job.
 **Checkpoint reuse economics.** If 30 fine-tune jobs all fork from one of 3 shared base-model
 checkpoints (rather than each uploading its own copy of ~140GB of base weights), checkpoint
 storage for those forks is dominated by content-addressed dedup of the shared base (cross-ref
-ml-experiment-tracking-platform.md's artifact dedup) — the alternative, 30 independent full
+[ml-experiment-tracking-platform.md](ml-experiment-tracking-platform.md)'s artifact dedup) — the alternative, 30 independent full
 copies, would cost ~30 × 140GB ≈ 4.2TB of redundant storage for weights that are byte-identical
 across forks until each job's fine-tuning diverges them.
 
@@ -106,7 +106,7 @@ GET  /v1/quota/{team}
 ```
 
 `fork` is the operation that doesn't exist in a single-job training system
-(distributed-training-system.md's `resume` only continues the *same* job) — it's the platform-level
+([distributed-training-system.md](distributed-training-system.md)'s `resume` only continues the *same* job) — it's the platform-level
 primitive that turns a checkpoint from one job's private recovery artifact into an org-wide shared
 starting point for new jobs.
 
@@ -177,7 +177,7 @@ fault_event (per detected failure, feeds the automated-recovery SLA)
 requested GPUs simultaneously, or none, since synchronous data/tensor/pipeline parallel training
 cannot start with a partial allocation (a stalled rank blocks every other rank's collective ops).
 This platform delegates the actual bin-packing and gang-allocation mechanics to
-gpu-cluster-scheduler.md and focuses on what's specific to training workloads: when a node inside
+[gpu-cluster-scheduler.md](gpu-cluster-scheduler.md) and focuses on what's specific to training workloads: when a node inside
 a running job's allocation fails or is reclaimed, an elastic-capable training framework can shrink
 world size and continue (adjusting data-parallel degree, re-deriving the affected pipeline stage's
 assignment) rather than requiring a full job restart. This matters directly at the failure rate
@@ -185,20 +185,20 @@ computed above — the difference between "shrink and continue" and "kill and re
 checkpoint" compounds into a meaningfully different fraction of wall-clock time lost across
 25-45 failure events/day platform-wide.
 
-**Automatic parallelism planning.** distributed-training-system.md's deep dive describes *why*
+**Automatic parallelism planning.** [distributed-training-system.md](distributed-training-system.md)'s deep dive describes *why*
 tensor parallelism is confined within a node and pipeline parallelism spans node groups; this
 platform automates the *decision*. Given a requested model size (parameter count, layer count,
 hidden dim) and GPU count, the planner picks a tensor-parallel degree bounded by intra-node GPU
 count (so TP never crosses the NVLink boundary), a pipeline-parallel degree that divides the
 remaining topology into node groups with even layer counts, and a data-parallel degree from
 whatever's left — then validates the resulting per-GPU memory footprint against the ZeRO-sharded
-estimate from distributed-training-system.md before admitting the job, rejecting configurations
+estimate from [distributed-training-system.md](distributed-training-system.md) before admitting the job, rejecting configurations
 that would OOM before they ever reach the scheduler. Advanced teams can override this with an
 explicit `parallelism_override`, but the default path is what makes the platform usable by teams
 who don't want to reason about 3D parallelism topology themselves.
 
 **Checkpoints as a shared, forkable platform resource.** A single job's checkpoint (per
-distributed-training-system.md) exists to resume *that* job after a failure. At the platform
+[distributed-training-system.md](distributed-training-system.md)) exists to resume *that* job after a failure. At the platform
 level, the same artifact is also the starting point for every fine-tune job that forks from it —
 `checkpoint_lineage` tracks this explicitly rather than treating each fork as an independent
 upload. This has real storage economics (the dedup math above) and a real operational
@@ -215,7 +215,7 @@ tracking exists specifically so one job's failure never triggers action on anoth
 allocation. Second, and less obvious, two large jobs running simultaneous all-reduce collectives
 can contend for cross-rack network bandwidth even without any node failure at all, silently
 degrading both jobs' MFU — which is why the scheduler's topology-aware placement
-(gpu-cluster-scheduler.md) tries to keep each large job's allocation network-local where possible,
+([gpu-cluster-scheduler.md](gpu-cluster-scheduler.md)) tries to keep each large job's allocation network-local where possible,
 not just GPU-count-sufficient.
 
 **Priority, preemption, and fairness across teams.** Quota pools cap each team's GPU-hour budget,
@@ -223,7 +223,7 @@ but a rigid priority order alone can starve low-priority jobs indefinitely if hi
 submissions never stop arriving. The platform's admission and scheduling policy combines priority
 classes (a large pretraining run can preempt a low-priority exploratory fine-tune) with fair-share
 enforcement and aging (a long-queued low-priority job's effective priority rises over time) —
-the same tension gpu-cluster-scheduler.md resolves generically, applied here to the specific
+the same tension [gpu-cluster-scheduler.md](gpu-cluster-scheduler.md) resolves generically, applied here to the specific
 consequence that a preempted training job must checkpoint before yielding its allocation, since an
 ungraceful kill loses unsaved progress that a graceful preemption (checkpoint-then-yield) would
 not.
@@ -243,7 +243,7 @@ scaling limit: it doesn't show up as a scheduling failure or a fault event, only
 degradation on jobs that were otherwise correctly provisioned, which is why topology-aware
 placement is treated as a scheduling correctness property, not a performance nicety, once the
 cluster runs multiple large jobs concurrently. Finally, the scheduler's own decision latency
-(gpu-cluster-scheduler.md) becomes the platform's ceiling on job-submission responsiveness as
+([gpu-cluster-scheduler.md](gpu-cluster-scheduler.md)) becomes the platform's ceiling on job-submission responsiveness as
 cluster size and job-count both grow — this platform's own logic (admission control, parallelism
 planning, checkpoint lineage) stays cheap and fast even at large scale; it's the underlying
 gang-allocation search that has to scale separately.

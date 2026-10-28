@@ -1,6 +1,6 @@
 # KV Cache Management
 
-llm-inference-optimization.md covers why the KV cache exists (avoiding quadratic recomputation of
+[llm-inference-optimization.md](llm-inference-optimization.md) covers why the KV cache exists (avoiding quadratic recomputation of
 attention over the prefix) and introduces PagedAttention at a high level. This note goes one level
 deeper into how a paged KV cache is actually managed as a scarce resource in production: block
 allocation mechanics, what happens under memory pressure, and how sharing a prefix across requests
@@ -17,7 +17,7 @@ fp16) costs 2 × 32 × 4096 × 2 bytes ≈ 512 KB/token. A single 4K-token conve
 ~2 GB of KV cache — larger than the activation memory for that same forward pass. Grouped-query
 attention (GQA) shrinks this by sharing K/V projections across multiple query heads: a 70B model
 with 8 KV heads instead of 64 costs roughly 320 KB/token despite having 10x the parameters (see
-../ml-system-design/llm-inference-serving.md's capacity estimate), which is why GQA is close to
+[../ml-system-design/llm-inference-serving.md](../ml-system-design/llm-inference-serving.md)'s capacity estimate), which is why GQA is close to
 mandatory for serving long-context models economically.
 
 Worked budget: a 13B model in fp16 needs ~26 GB for weights. On an 80GB GPU, after weights and a
@@ -54,9 +54,9 @@ losing the sequence outright:
   the stored token IDs via a fresh prefill pass. Costs GPU compute instead of PCIe bandwidth,
   which is often the better trade at high batch sizes — the same memory-bandwidth-bound-vs-
   compute-bound distinction that governs decode-step cost generally (see
-  llm-inference-optimization.md).
+  [llm-inference-optimization.md](llm-inference-optimization.md)).
 
-This is a different eviction problem from a general-purpose cache (caching.md's LRU/LFU/TTL
+This is a different eviction problem from a general-purpose cache ([caching.md](caching.md)'s LRU/LFU/TTL
 policies): the "value" being evicted is mid-computation sequence state on the hot path of a live
 request, not idempotent read-through data, so the policy has to weigh recompute/swap cost against
 request priority and how much progress would be lost, not just recency of access.
@@ -80,7 +80,7 @@ rather than requiring an exact, request-scoped match.
 
 KV cache management operates within one GPU's (or one tensor-parallel group's) memory budget;
 which physical GPUs a replica lands on, and how many replicas exist, is a separate decision made
-by the cluster scheduler (gpu-scheduling.md) and the autoscaler (autoscaling-inference.md). The
+by the cluster scheduler ([gpu-scheduling.md](gpu-scheduling.md)) and the autoscaler ([autoscaling-inference.md](autoscaling-inference.md)). The
 two layers compose: cache eviction and prefix sharing determine how many sequences one replica can
 hold, and fleet scheduling determines how many replicas exist to hold them — a cluster that
 under-provisions replicas can't be rescued by better cache management, and vice versa.

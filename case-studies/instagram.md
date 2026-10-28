@@ -14,7 +14,7 @@
 - Media reads (viewing photos/videos) dominate traffic by a wide margin and must be
   low-latency globally.
 - Feed generation has the same fan-out tradeoffs as any social feed (see
-  case-studies/twitter-news-feed.md) — this doc focuses on the parts specific to media.
+  [case-studies/twitter-news-feed.md](twitter-news-feed.md)) — this doc focuses on the parts specific to media.
 
 ## Capacity Estimation
 
@@ -117,18 +117,18 @@ too slow to do inline on the upload request. The upload path writes the original
 storage, enqueues a processing job, and returns immediately; a pool of workers consumes the
 queue, and the post only becomes visible in feeds once processing completes. This decouples
 upload latency (fast, user-facing) from processing latency (slower, invisible to the user) —
-see concepts/message-queues.md for the general pattern.
+see [concepts/message-queues.md](../concepts/message-queues.md) for the general pattern.
 
 **CDN and cache-first reads.** Given the read:write ratio here (roughly 200:1 by request
 count, and orders of magnitude more by bytes since each read pulls image data and each write
 is comparatively small), essentially all image bytes should be served from CDN edge caches,
-with object storage as the origin the CDN falls back to on a cache miss (see concepts/cdn.md).
+with object storage as the origin the CDN falls back to on a cache miss (see [concepts/cdn.md](../concepts/cdn.md)).
 A well-tuned setup should see a 90%+ CDN hit rate for anything beyond the first few minutes
 after upload, since a photo's popularity is heavily front-loaded right after posting and then
 tapers — meaning the origin's actual sustained load is a small fraction of total view volume.
 
 **Feed generation.** Uses the same push/pull hybrid fan-out described in
-case-studies/twitter-news-feed.md — post metadata (not media bytes) gets pushed into
+[case-studies/twitter-news-feed.md](twitter-news-feed.md) — post metadata (not media bytes) gets pushed into
 followers' feed caches, and the feed itself is a list of post_ids that the client resolves to
 CDN URLs on render. The media-specific addition here is that a post shouldn't fan out into
 feeds until its processing job completes — fanning out a post before its feed-resolution
@@ -144,7 +144,7 @@ variant as its own immutable object.
 ## Bottlenecks & Scaling
 
 The media-processing worker pool needs to scale with upload volume independently of the app
-tier — it's a classic queue-depth-driven autoscaling target (see concepts/message-queues.md
+tier — it's a classic queue-depth-driven autoscaling target (see [concepts/message-queues.md](../concepts/message-queues.md)
 on backpressure). Object storage itself is effectively infinitely horizontally scalable by
 design (that's what S3-class storage is built for) so it's rarely the bottleneck; the CDN hit
 rate is the number that actually determines whether origin (object storage + the app tier

@@ -72,13 +72,13 @@ onto what's already there).
 
 - Semantic search / retrieval: match queries to documents by meaning, not keyword overlap.
 - Recommendation candidate generation: embed users and items in a shared space, retrieve nearest
-  items to a user vector before a heavier reranking stage — see ../ml-system-design/search-ranking.md
-  and ../ml-system-design/ad-click-prediction.md for how retrieval feeds a full ranking pipeline.
+  items to a user vector before a heavier reranking stage — see [../ml-system-design/search-ranking.md](../ml-system-design/search-ranking.md)
+  and [../ml-system-design/ad-click-prediction.md](../ml-system-design/ad-click-prediction.md) for how retrieval feeds a full ranking pipeline.
 - Deduplication / near-duplicate detection: near-identical items land close together even with
   superficial differences in text or pixels.
 - RAG (retrieval-augmented generation): embed a corpus, retrieve the top-k chunks relevant to a
   prompt, feed them into an LLM's context instead of relying on parametric memory alone — see
-  llm-inference-optimization.md for what happens to that context once it hits the model.
+  [llm-inference-optimization.md](llm-inference-optimization.md) for what happens to that context once it hits the model.
 
 ## Tradeoffs
 
@@ -86,7 +86,7 @@ Item embeddings computed offline drift out of sync with a live catalog or corpus
 description changes, a document gets edited, a user's behavior shifts — and the stored
 embedding doesn't reflect it until the next reindex. That forces a choice between reindexing
 cadence (cost) and staleness (relevance), the same freshness-vs-simplicity tradeoff behind
-cache invalidation (see caching.md). The exact-vs-approximate tradeoff is the other constant:
+cache invalidation (see [caching.md](caching.md)). The exact-vs-approximate tradeoff is the other constant:
 ANN indexes give up a small, measurable amount of recall for latency and memory improvements
 that are usually multiple orders of magnitude, and nearly every production vector search system
 makes that trade deliberately rather than run exact k-NN — the recall loss is tunable, and the

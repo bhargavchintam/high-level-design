@@ -52,9 +52,9 @@ ranking ~30ms, L2 ranking ~100ms, business-logic re-rank plus network/serializat
 running the most expensive model in the pipeline (see bottlenecks).
 
 Index storage: inverted index — 10B docs × ~200 unique indexed terms/doc × ~4 bytes/compressed
-posting ≈ 8 TB, sharded across nodes (see concepts/database-sharding.md). Dense vector index —
+posting ≈ 8 TB, sharded across nodes (see [concepts/database-sharding.md](../concepts/database-sharding.md)). Dense vector index —
 10B docs × 256-dim embeddings × fp16 (2 bytes) ≈ 5.1 TB, also sharded; see
-concepts/embeddings-and-vector-search.md for ANN index structure.
+[concepts/embeddings-and-vector-search.md](../concepts/embeddings-and-vector-search.md) for ANN index structure.
 
 Training data: 6B queries/day × ~10 results shown/query (logged as impressions) = 60B logged
 impression rows/day, ~150 bytes/row ≈ 9 TB/day raw click-log volume before position-bias
@@ -137,7 +137,7 @@ unlimited hardware, since per-document scoring cost times corpus size dwarfs the
 budget regardless of parallelism. The funnel exists to spend cheap compute at large scale
 (retrieval, L1) to aggressively cut the candidate set, so that expensive compute (L2) only ever
 runs on a few hundred candidates — the same retrieval-then-rank tradeoff
-ml-system-design/recommendation-system.md makes with its two-tower/ranking split, applied here
+[ml-system-design/recommendation-system.md](recommendation-system.md) makes with its two-tower/ranking split, applied here
 to a much larger corpus and an explicit third funnel stage.
 
 **Hybrid retrieval.** Lexical retrieval (an inverted index scored with something like BM25 —
@@ -145,7 +145,7 @@ term frequency weighted by inverse document frequency, no learned model involved
 on vocabulary matches, and completely blind to synonymy or paraphrase: a query for "cheap
 flights" won't match a document that only says "affordable airfare" no matter how relevant it
 is. Embedding-based ANN retrieval (dense query/doc embeddings, nearest-neighbor search — see
-concepts/embeddings-and-vector-search.md) captures semantic similarity across vocabulary gaps
+[concepts/embeddings-and-vector-search.md](../concepts/embeddings-and-vector-search.md)) captures semantic similarity across vocabulary gaps
 but can miss precise keyword/entity matches that lexical retrieval nails trivially (an exact
 product SKU, a proper noun), since embeddings compress meaning and can blur exact-match signal.
 Running both and merging/deduplicating the candidate sets covers each approach's blind spot with
@@ -195,17 +195,17 @@ L2 ranking is the tightest part of the latency budget despite scoring the fewest
 because it deliberately runs the most expensive model in the pipeline — any regression in L2
 model latency (a model size increase, a slow feature lookup) has nowhere to hide the way it
 might at L1, where there's more raw budget margin per candidate. Index sharding is unavoidable
-past a few billion documents (see concepts/database-sharding.md) — both the inverted index and
+past a few billion documents (see [concepts/database-sharding.md](../concepts/database-sharding.md)) — both the inverted index and
 the vector index are partitioned across nodes, which turns retrieval into a fan-out/fan-in
 (query every shard, merge top-K results) and adds a tail-latency risk: the slowest shard sets
 the retrieval latency for the whole query, not the average shard. Index refresh cost scales with
 corpus size and update rate, not query volume, and is usually run as its own batch/streaming
 pipeline independent of the serving fleet (analogous to the item-tower refresh job in
-ml-system-design/recommendation-system.md) — the fast-path index exists specifically because
+[ml-system-design/recommendation-system.md](recommendation-system.md)) — the fast-path index exists specifically because
 that refresh cadence can't be sped up enough to cover freshness-sensitive content without one.
 Embedding staleness compounds this: a document's vector embedding reflects the model version and
 content state at last refresh, so between refreshes, semantic retrieval quality for that
 document slowly drifts from what the current model would produce if re-run — generally
 tolerated as a bounded, temporary degradation rather than solved by refreshing continuously,
 since continuous full-corpus re-embedding at this scale is itself a large distributed compute
-job (see concepts/distributed-training.md for the general pattern).
+job (see [concepts/distributed-training.md](../concepts/distributed-training.md) for the general pattern).

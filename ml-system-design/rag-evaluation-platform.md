@@ -4,7 +4,7 @@
 
 ### Functional
 - Evaluate retrieval quality (recall@k, MRR, precision) and generation quality (faithfulness,
-  answer correctness, relevance) for a RAG system (see rag-system.md) independently of each
+  answer correctness, relevance) for a RAG system (see [rag-system.md](rag-system.md)) independently of each
   other, against curated golden query sets — not only as a single end-to-end pass/fail signal.
 - Score generation quality dimensions that resist exact-match metrics (faithfulness, coherence,
   helpfulness) using LLM-as-judge, with the judge periodically calibrated against human-labeled
@@ -172,7 +172,7 @@ process, not a monotonically growing archive.
 retrieved) and MRR (how highly the first relevant passage ranks, rewarding it appearing earlier)
 are computed directly against `golden_query.relevant_passage_ids`, independent of anything the
 generation stage does with those passages — this mirrors the retrieval-quality-as-its-own-metric
-principle from rag-system.md, applied here as an automated, versioned gate rather than a one-off
+principle from [rag-system.md](rag-system.md), applied here as an automated, versioned gate rather than a one-off
 manual check. The genuine subtlety is what counts as "relevant": many real queries have more than
 one passage that could correctly ground an answer (several sections of a document say materially
 the same thing), and a golden set that labels only a single passage as relevant per query will
@@ -237,7 +237,7 @@ coverage a team sustains over time. Judge nondeterminism and drift directly thre
 reproducibility requirement at scale and need the dedicated `judge_calibration` monitoring loop
 rather than an assumption that judge behavior is stable once validated at launch. Finally, this
 platform's usefulness is structurally coupled to the production RAG system it evaluates — new
-corpora, new query patterns, or a new user-facing surface in rag-system.md all mean the golden set
+corpora, new query patterns, or a new user-facing surface in [rag-system.md](rag-system.md) all mean the golden set
 has to evolve to track them, or the eval scores keep measuring a version of the problem the
 production system has already moved past; that coupling is a standing maintenance dependency
 between the two systems, not a one-time integration done once at platform launch.

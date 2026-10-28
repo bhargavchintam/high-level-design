@@ -47,7 +47,7 @@ headroom.
 
 Feature store: assume 500M monthly active users × ~200 online features × 8 bytes ≈ 800 GB;
 50M active ads/campaigns × ~100 features × 4 bytes ≈ 20 GB — both sharded across an in-memory
-KV tier (see concepts/database-sharding.md), since no single-node store serves 20M+ reads/sec.
+KV tier (see [concepts/database-sharding.md](../concepts/database-sharding.md)), since no single-node store serves 20M+ reads/sec.
 Embedding tables for hashed high-cardinality IDs add to this: at 2^26 (~67M) buckets, embedding
 dim 12, fp32, one hashed feature family is 67M × 12 × 4 bytes ≈ 3.2 GB — a handful of crossed
 families lands in the tens-of-GB range, small enough to keep resident on each scoring host
@@ -195,7 +195,7 @@ candidates as one batched forward pass instead of 200 sequential calls turns a l
 that scales with candidate count into one that's nearly flat up to a batch-size limit.
 Quantization: running the model at int8 or fp16 instead of fp32 cuts compute time and memory
 bandwidth, typically at a small, measured accuracy cost that's worth it against a hard latency
-wall (see concepts/model-serving-patterns.md). Feature caching: recently-computed user features
+wall (see [concepts/model-serving-patterns.md](../concepts/model-serving-patterns.md)). Feature caching: recently-computed user features
 are cached at the serving edge, so a user issuing several ad requests in a short window doesn't
 force a fresh feature-store round trip every time — at 20M+ scores/sec, feature-store latency,
 not model-inference latency, is frequently the first thing to blow the 10ms wall.
@@ -205,7 +205,7 @@ not model-inference latency, is frequently the first thing to blow the 10ms wall
 The feature store is the most exposed shared dependency: at 20M+ scores/sec average, every one
 of those needs a feature lookup, and a feature-store latency spike affects every in-flight
 request simultaneously rather than degrading gracefully — this pushes toward aggressive sharding
-by user_id/ad_id (see concepts/database-sharding.md), edge caching of hot features, and a hard
+by user_id/ad_id (see [concepts/database-sharding.md](../concepts/database-sharding.md)), edge caching of hot features, and a hard
 timeout with a stale-or-default-feature fallback rather than blocking the request past budget.
 Cold start is a persistent second-order problem on both sides: a brand-new ad has no
 historical_ctr_7d yet, and a brand-new user has no behavioral features — both fall back to

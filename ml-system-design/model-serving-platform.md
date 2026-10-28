@@ -186,7 +186,7 @@ version's actual outputs, but the shadow version's output is never returned to t
 allowed to affect any downstream decision. This catches correctness and latency problems (a
 new version that's badly miscalibrated, or unexpectedly slow, or crashes on some slice of real
 production inputs) with zero user-facing risk, before the version is trusted enough to take even
-canary traffic — see ml-monitoring-and-drift.md for how shadow deployment fits into the broader
+canary traffic — see [ml-monitoring-and-drift.md](ml-monitoring-and-drift.md) for how shadow deployment fits into the broader
 monitoring picture.
 
 **Batch vs. real-time serving from one artifact.** A model trained and packaged once should

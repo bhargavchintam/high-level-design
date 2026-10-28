@@ -26,7 +26,7 @@ flowchart LR
     C -->|"kv-cache-management → llm-inference-serving"| M
 ```
 
-An arrow means docs in one part point to docs in the other ("see concepts/consistent-hashing.md").
+An arrow means docs in one part point to docs in the other ("see [concepts/consistent-hashing.md](concepts/consistent-hashing.md)").
 Each label is one real example.
 
 ## ML system design

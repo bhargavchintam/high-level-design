@@ -18,7 +18,7 @@
 
 ### Non-functional
 - End-to-end p99 latency < 100ms for the full request (retrieval + real-time feature fetch +
-  ranking + re-rank) — tighter than the 150ms budget in recommendation-system.md specifically
+  ranking + re-rank) — tighter than the 150ms budget in [recommendation-system.md](recommendation-system.md) specifically
   because of this surface's tighter interaction contract.
 - Feature freshness: the round trip from a user action to that action being usable as a ranking
   input must be well under a second — a personalization signal that's still several seconds stale
@@ -41,14 +41,14 @@ average, ~10,400/sec peak (3x).
 session-scoped working set rather than retrieving fresh against the full catalog every request —
 see deep dive), ~15ms real-time feature fetch (session + recent-event aggregates), ~40ms ranking,
 ~15ms overhead/network. Every stage here is tighter than the equivalent stage in
-recommendation-system.md's 150ms breakdown, which is the direct reason the candidate pool per
+[recommendation-system.md](recommendation-system.md)'s 150ms breakdown, which is the direct reason the candidate pool per
 request is deliberately kept small rather than retrieved fresh from the full catalog on every one
 of the 15 in-session requests.
 
 **In-session event volume.** Assume 8 loggable in-session events/request (impressions plus the
 triggering interaction) × 300M requests/day = **2.4B events/day** → 2.4B / 86,400 ≈ 27,800/sec
 average, ~83,000/sec peak — this is the stream the real-time feature pipeline (see
-real-time-ml-pipeline.md) has to turn into usable ranking features inside the sub-second freshness
+[real-time-ml-pipeline.md](real-time-ml-pipeline.md)) has to turn into usable ranking features inside the sub-second freshness
 budget above.
 
 **Session state store.** 20M concurrent-ish daily sessions × ~2KB session state (recent event
@@ -78,7 +78,7 @@ GET  /v1/session/{session_id}/state       (internal — used by the personalizat
 ```
 
 `latency_breakdown_ms` on the response mirrors the same principle as `retrieval_ms`/
-`generation_ms` in rag-system.md — at a 100ms total budget with five contributing stages, knowing
+`generation_ms` in [rag-system.md](rag-system.md) — at a 100ms total budget with five contributing stages, knowing
 which stage is regressing is the minimum observability needed to fix it, and end-to-end latency
 alone doesn't tell you that.
 
@@ -159,7 +159,7 @@ system's tight latency and freshness budgets are actually spent on, and the firs
 not re-paid for on every request.
 
 **Sub-second feature freshness pipeline.** Hitting a sub-second freshness bar requires two changes
-relative to the general design in real-time-ml-pipeline.md, not just a smaller window size on the
+relative to the general design in [real-time-ml-pipeline.md](real-time-ml-pipeline.md), not just a smaller window size on the
 same architecture. First, checkpoint and emit granularity in the streaming aggregation layer has to
 be finer — sub-second micro-batches or continuous processing rather than the several-second windows
 that are adequate for a slower-moving signal — which raises per-event processing cost materially.
@@ -180,7 +180,7 @@ The real-time feature fetch carries a hard timeout and falls back to the last kn
 feature snapshot rather than blocking the request — a slightly stale ranking is a strictly better
 outcome than a timed-out request on an interactive surface. The ranking stage falls back to a
 cheaper or smaller model variant if the primary ranker's own p99 is trending toward risking the
-overall budget, the same graceful-degradation principle used in recommendation-system.md, but
+overall budget, the same graceful-degradation principle used in [recommendation-system.md](recommendation-system.md), but
 triggered at a tighter threshold given how much less absolute slack a 100ms budget leaves compared
 to a 150ms one. The practical consequence is that this system needs per-stage p99 monitoring, not
 just end-to-end p99 — an end-to-end number within budget can still be hiding one stage regularly
@@ -207,7 +207,7 @@ an event is reflected in `session_state` milliseconds before its corresponding a
 design, reading raw recent events directly from `session_state` for signals that need to be
 instantaneous (was the last-viewed item in this category) while reading `realtime_features` for
 signals that are inherently aggregate and can't be computed from a raw event list alone (a running
-average). This is a deliberate departure from real-time-ml-pipeline.md's general pattern of
+average). This is a deliberate departure from [real-time-ml-pipeline.md](real-time-ml-pipeline.md)'s general pattern of
 serving exclusively from the feature store — that pattern is correct when the feature store's own
 freshness SLA is tight enough to be the only source of truth; here, the freshness bar is tight
 enough that the system needs a faster, narrower path in addition to it.
@@ -221,7 +221,7 @@ is the direct reason per-stage p99 monitoring is a harder operational requiremen
 system with more slack to absorb noise. Session state store read/write volume scales with
 in-session request rate, not DAU — a small number of unusually engaged sessions generating rapid-
 fire interactions can concentrate disproportionate load onto a single session's shard, a hot-key
-pattern structurally similar to the ones covered in concepts/database-sharding.md, just keyed by
+pattern structurally similar to the ones covered in [concepts/database-sharding.md](../concepts/database-sharding.md), just keyed by
 session rather than by a natural entity ID. Streaming pipeline overhead per event is higher than a
 system with a looser freshness bar tolerates, because finer checkpoint granularity costs more per
 event processed — the real-time feature pipeline backing this system is provisioned and tuned with

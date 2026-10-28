@@ -133,7 +133,7 @@ total system load looks fine on average.
 The redirect path is overwhelmingly read-dominated (100:1) and latency-sensitive, so the
 design optimizes almost entirely around that: cache in front of the DB, CDN-level caching for
 extremely popular links if the product allows 301s for those, and a KV store sharded by
-`hash(short_code)` (consistent hashing, see concepts/consistent-hashing.md) so adding capacity
+`hash(short_code)` (consistent hashing, see [concepts/consistent-hashing.md](../concepts/consistent-hashing.md)) so adding capacity
 doesn't require a full data reshuffle.
 
 The write path is comparatively tiny (~40 QPS average) and is decoupled from any coordination

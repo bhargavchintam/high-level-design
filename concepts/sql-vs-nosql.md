@@ -41,7 +41,7 @@ Not one thing — four different families with different tradeoffs:
 
 Most NoSQL stores trade ACID for horizontal scalability and availability — they're built to
 shard and replicate across commodity hardware natively, usually landing on the AP side of CAP
-by default (see cap-theorem.md), with tunable consistency in systems like Cassandra and
+by default (see [cap-theorem.md](cap-theorem.md)), with tunable consistency in systems like Cassandra and
 DynamoDB.
 
 ## The actual decision

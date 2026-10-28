@@ -134,7 +134,7 @@ long-poll or push-notification channel tells other devices "something changed fo
 account," which triggers them to call the changes endpoint and pull the actual delta. This
 keeps idle devices cheap (a held-open connection or occasional heartbeat) while making sync
 propagation fast (near-real-time) when something actually changes — the same push-vs-poll
-tradeoff that shows up in case-studies/notification-system.md.
+tradeoff that shows up in [case-studies/notification-system.md](notification-system.md).
 
 ## Bottlenecks & Scaling
 

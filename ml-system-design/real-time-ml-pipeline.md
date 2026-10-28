@@ -31,7 +31,7 @@
 
 Assume 2M events/sec sustained ingest (clickstream + transaction events across a large
 consumer platform), average event size 500 bytes → 2M × 500B = 1 GB/sec raw ingest into
-Kafka (see concepts/message-queues.md for the broker-side sizing of this — this pipeline is a
+Kafka (see [concepts/message-queues.md](../concepts/message-queues.md) for the broker-side sizing of this — this pipeline is a
 consumer of exactly that kind of cluster).
 
 **Stream processing parallelism.** A single stream-processing task (a Flink subtask) handling
@@ -165,7 +165,7 @@ an offline batch-replay job that re-runs the exact same logic over historical Ka
 future leakage in the offline join — naively joining "current feature value" to a historical
 label instead of "feature value as it existed at label time" leaks information the model would
 never have had in production, inflating offline metrics that then don't materialize online.
-This is exactly the point-in-time join problem covered in ml-system-design/recommendation-system.md's
+This is exactly the point-in-time join problem covered in [ml-system-design/recommendation-system.md](recommendation-system.md)'s
 feature-store section, generalized to any streaming-fed model, not just ranking.
 
 **Event time vs. processing time and watermarks.** Windowed aggregation ("clicks per user in
@@ -214,7 +214,7 @@ architecture: a viral post, a bot account hammering an endpoint, or a single hig
 merchant account concentrates a disproportionate share of events onto one partition key,
 overloading the single Flink subtask responsible for that key's state and creating backpressure
 that stalls the whole pipeline behind it — the same hot-partition failure mode covered in
-concepts/database-sharding.md and concepts/message-queues.md, showing up here in a stream
+[concepts/database-sharding.md](../concepts/database-sharding.md) and [concepts/message-queues.md](../concepts/message-queues.md), showing up here in a stream
 processor instead of a broker or a shard. Mitigations mirror those domains: key salting for
 known-hot entities, or a two-stage aggregation (local pre-aggregation across a few sub-keys,
 merged in a second stage) to spread the load. Flink operator state grows monotonically with

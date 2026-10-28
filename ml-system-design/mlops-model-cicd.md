@@ -27,13 +27,13 @@
 - Every promotion or rollback decision must be auditable: traceable to the exact metric values,
   thresholds, and config version active at decision time, for post-incident review and compliance.
 - The pipeline must run safely, unattended, and continuously across hundreds of independently
-  releasing models — the same control-plane scaling concern model-serving-platform.md raises
+  releasing models — the same control-plane scaling concern [model-serving-platform.md](model-serving-platform.md) raises
   about rollout velocity across many teams, but here it's the automated decision-making itself
   that has to scale, not just the traffic-shifting mechanism.
 
 ## Capacity Estimation
 
-**Rollout volume.** Reusing model-serving-platform.md's estimate of ~28 rollouts/day across 200
+**Rollout volume.** Reusing [model-serving-platform.md](model-serving-platform.md)'s estimate of ~28 rollouts/day across 200
 hosted models: each one is a full pipeline run through offline eval, shadow, canary, and (if all
 gates pass) promotion.
 
@@ -46,7 +46,7 @@ latency (queueing to get GPU time, not the 100 seconds of actual compute) is wha
 hours-not-days SLA actually has to budget for.
 
 **Online canary concurrency.** At a 30-60 minute canary evaluation window (per
-model-serving-platform.md) and ~28 rollouts/day spread across a work day, average concurrent
+[model-serving-platform.md](model-serving-platform.md)) and ~28 rollouts/day spread across a work day, average concurrent
 canaries ≈ 28 × 45min / 1,440min ≈ **0.9 concurrent canaries** on average — but release activity
 clusters heavily (many teams shipping Monday morning after a weekend), so the orchestration layer
 has to handle bursts of 10-20 simultaneous canaries, not assume the average holds at all times.
@@ -106,7 +106,7 @@ promotion_event (audit trail — every stage transition, automated or manual)
   decided_by: automated | manual_override, ts
 ```
 
-`promotion_event` feeds the exact same kind of audit trail ml-experiment-tracking-platform.md's
+`promotion_event` feeds the exact same kind of audit trail [ml-experiment-tracking-platform.md](ml-experiment-tracking-platform.md)'s
 `model_registry.stage` transitions need — this pipeline is, in effect, what *drives* those
 transitions automatically instead of leaving them to a human clicking a stage-promotion button.
 
@@ -157,10 +157,10 @@ holdout set (comparison: `vs_baseline`) keeps the bar meaningful release over re
 doesn't catch everything: a holdout set reflects the data distribution at the time it was
 collected, and offline gates by construction cannot observe a distribution shift between that
 holdout set and live traffic — which is exactly why an online gate is still mandatory even after
-a clean offline pass, and why ml-monitoring-and-drift.md's distribution-shift detection operates
+a clean offline pass, and why [ml-monitoring-and-drift.md](ml-monitoring-and-drift.md)'s distribution-shift detection operates
 as an independent, continuous check outside this pipeline entirely, not a substitute for it.
 
-**Shadow-then-canary as sequential risk reduction.** Shadow deployment (model-serving-platform.md)
+**Shadow-then-canary as sequential risk reduction.** Shadow deployment ([model-serving-platform.md](model-serving-platform.md))
 catches crashes, latency regressions, and gross miscalibration with zero user-facing risk, since
 its output is computed but never returned or acted on. It cannot, by the same design, observe how
 real users actually respond to the new model's outputs — click-through, conversion, any behavioral
@@ -176,11 +176,11 @@ false-promotes (an underpowered canary that got lucky) and false-rejects (normal
 mistaken for regression). The worked power calculation above is why the pipeline computes a
 minimum sample size per gate from the guardrail metric's baseline rate and the minimum detectable
 effect that matters for that model, rather than applying one fixed calendar-time window to every
-model regardless of its traffic volume — cross-ref ab-testing-and-experimentation.md for the
+model regardless of its traffic volume — cross-ref [ab-testing-and-experimentation.md](ab-testing-and-experimentation.md) for the
 underlying statistical machinery (sample-size calculation, sequential testing considerations) this
 gate reuses directly rather than reimplementing.
 
-**Automated rollback and blast-radius containment.** Because model-serving-platform.md's
+**Automated rollback and blast-radius containment.** Because [model-serving-platform.md](model-serving-platform.md)'s
 traffic-policy design keeps the previous production version warm and actively serving until the
 new version is fully promoted, "rollback" is a routing-table weight change, not a redeploy — it
 completes in the time it takes that config change to propagate, not the time it takes to
@@ -195,7 +195,7 @@ before it takes effect, and every automated decision the pipeline makes can be r
 against the exact config version and metric values that were active at that moment. This is what
 makes an unattended pipeline running continuously across hundreds of models an auditable process
 rather than an opaque one — directly extending the reproducibility guarantee
-ml-experiment-tracking-platform.md's lineage tracking already makes for how a model was *trained*,
+[ml-experiment-tracking-platform.md](ml-experiment-tracking-platform.md)'s lineage tracking already makes for how a model was *trained*,
 to cover how it was subsequently *promoted*.
 
 ## Bottlenecks & Scaling
@@ -204,7 +204,7 @@ At hundreds of independently-releasing models, the orchestration layer tracking 
 has to handle bursty concurrent canary evaluations (release clustering, e.g. Monday mornings) as a
 real queueing and scheduling problem rather than assuming the low steady-state average concurrency
 computed above always holds. Offline eval compute competes for the same shared GPU capacity as
-everything else in the org (cross-ref gpu-cluster-scheduler.md) and needs its own priority/quota
+everything else in the org (cross-ref [gpu-cluster-scheduler.md](gpu-cluster-scheduler.md)) and needs its own priority/quota
 class, so a burst of promotion evaluations doesn't starve training jobs, or vice versa delay every
 pending promotion behind a large training run. Statistical rigor imposes a hard, non-infrastructure
 constraint: a low-traffic model cannot get a fast, confident online-gate decision no matter how

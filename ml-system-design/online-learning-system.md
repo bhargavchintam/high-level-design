@@ -37,7 +37,7 @@
 ## Capacity Estimation
 
 Assume the online-updated model backs a fraud-scoring or feed-ranking product at a scale
-comparable to fraud-detection-system.md and recommendation-system.md: 300M predictions/day.
+comparable to [fraud-detection-system.md](fraud-detection-system.md) and [recommendation-system.md](recommendation-system.md): 300M predictions/day.
 Not every prediction resolves to a label inside a window short enough to be useful for online
 learning — assume 20% resolve within minutes to a few hours (the online-learning-eligible slice;
 long-latency labels like 30-day churn still go through the batch retrain path) → **60M labeled
@@ -205,7 +205,7 @@ not just confirmations of it.
 
 **Guardrails and the promotion gate.** No candidate update reaches serving weights without
 passing through the shadow-eval gate — computed the same way a canary is evaluated in
-model-serving-platform.md, except run automatically 17,280 times/day against a tight time budget
+[model-serving-platform.md](model-serving-platform.md), except run automatically 17,280 times/day against a tight time budget
 instead of a handful of times/week against a generous one. The gate checks two different failure
 classes: a gradient-norm bound catches numerically pathological updates (an outlier batch, a
 feature-pipeline bug producing extreme values) before they're even shadow-evaluated, cheaply;

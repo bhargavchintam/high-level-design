@@ -58,7 +58,7 @@ label problem (deep dive below).
 aggregate features (transaction count/amount in the last 1h/24h/7d, per card/account/device) →
 30,000 tx/sec × 15 feature reads ≈ 450K reads/sec at peak against the online feature store —
 sized the same way as the streaming aggregation pipeline in
-ml-system-design/real-time-ml-pipeline.md, since this is the same class of infrastructure
+[ml-system-design/real-time-ml-pipeline.md](real-time-ml-pipeline.md), since this is the same class of infrastructure
 (rolling counters computed off a live event stream) applied to a different domain.
 
 **Graph size.** A graph node per unique card/device/account/IP, edges for co-occurrence in a
@@ -206,7 +206,7 @@ job that incrementally updates the graph as new edges land, and the scoring path
 cheap point lookup of an already-computed value. The tradeoff is freshness: a ring assembled in
 the last few minutes may not yet be reflected in `component_size` if the graph-update job runs on
 a 5-15 minute cycle — the same freshness-vs-latency tradeoff as online-store staleness in
-ml-system-design/real-time-ml-pipeline.md, applied to graph structure instead of scalar
+[ml-system-design/real-time-ml-pipeline.md](real-time-ml-pipeline.md), applied to graph structure instead of scalar
 aggregates.
 
 **The delayed-label problem.** Chargeback-confirmed fraud labels lag the transaction by 30-90+

@@ -14,7 +14,7 @@
   and promotion are separate actions from logging.
 - Let downstream serving and deployment systems consume the registry as the single source of
   truth for "what is the currently-approved production artifact for model X" (see
-  ml-system-design/real-time-ml-pipeline.md and concepts/model-serving-patterns.md for the
+  [ml-system-design/real-time-ml-pipeline.md](real-time-ml-pipeline.md) and [concepts/model-serving-patterns.md](../concepts/model-serving-patterns.md) for the
   consuming side).
 - Support comparing runs side by side (metrics, params, diffs) and reproducing a specific past
   run exactly, months later, on demand.
@@ -59,12 +59,12 @@ bandwidth and, combined with dedup (deep dive below), drives the storage bill. A
 × 3 GB average final checkpoint × 730 days (2-year retention) ≈ 1.1 PB raw retained — dedup
 reduces this meaningfully in practice, but 1.1 PB raw is what forces cold-tiering of artifacts
 belonging to old, non-Production runs rather than keeping everything on hot storage (the same
-lifecycle tradeoff as case-studies/google-drive-dropbox.md's cold-tiering, applied to
+lifecycle tradeoff as [case-studies/google-drive-dropbox.md](../case-studies/google-drive-dropbox.md)'s cold-tiering, applied to
 checkpoints instead of user files).
 
 **Metadata query load.** ~365,000 runs over 2 years, each with ~50 params and ~30 summary
 metrics indexed for filtering, is ~30M indexed (run, key, value) rows — comfortably sized for a
-relational store with the right indexes (concepts/indexing.md), and explicitly not a workload
+relational store with the right indexes ([concepts/indexing.md](../concepts/indexing.md)), and explicitly not a workload
 to serve by scanning the metrics time-series or artifact blob store directly.
 
 ## API Design
@@ -101,7 +101,7 @@ GET /v1/runs?filter=params.learning_rate<0.01 AND metrics.eval_accuracy>0.9
 ```
 
 The metrics endpoint being batched and returning `202` rather than a per-value synchronous
-`200` mirrors the async job-based pattern in ml-system-design/feature-store.md's offline
+`200` mirrors the async job-based pattern in [ml-system-design/feature-store.md](feature-store.md)'s offline
 endpoint, for the same reason: the caller (a training loop) cannot block on a round trip per
 logged value.
 
@@ -137,7 +137,7 @@ lineage_edges (graph, small relative to metrics, read on every "how was this mod
 ```
 
 `metrics_timeseries` is a deliberately separate store from the rest, for the same reason the
-online/offline feature stores are split in ml-system-design/real-time-ml-pipeline.md: metrics
+online/offline feature stores are split in [ml-system-design/real-time-ml-pipeline.md](real-time-ml-pipeline.md): metrics
 are append-only and read via range scan, while runs/params/registry are read via arbitrary
 filter predicates — no single storage engine is good at both.
 
@@ -205,8 +205,8 @@ instrumentation.
 **Metrics time-series storage at high write volume.** `metrics_timeseries` is written far more
 than read, and every write is an append at a monotonically increasing key within a (run_id,
 key) series — never an update in place. This is the log-structured write pattern from
-concepts/indexing.md's LSM-tree section, applied to a broker's partition log in
-case-studies/distributed-message-queue.md: sequential appends are cheap, and the dominant read
+[concepts/indexing.md](../concepts/indexing.md)'s LSM-tree section, applied to a broker's partition log in
+[case-studies/distributed-message-queue.md](../case-studies/distributed-message-queue.md): sequential appends are cheap, and the dominant read
 ("the loss curve for run X") is a contiguous range scan over one series, not a point lookup or
 join — exactly what a write-optimized, range-scan-friendly store is built for. Serving this out
 of the same relational store used for `runs`/`params` would mean either billions of narrow rows
@@ -219,7 +219,7 @@ contents) and that hash becomes its storage key — re-uploading a checkpoint wi
 bytes is a cheap no-op, since the client checks whether the hash already exists and skips the
 transfer if so. This matters because checkpoints are routinely re-saved with only a fraction of
 weights changed, or a fine-tune re-persists a base checkpoint byte-for-byte. It's the identical
-mechanism to the content-addressed block storage in case-studies/google-drive-dropbox.md,
+mechanism to the content-addressed block storage in [case-studies/google-drive-dropbox.md](../case-studies/google-drive-dropbox.md),
 applied to checkpoints instead of documents — same hash-as-key, same reason content-defined
 chunking (rather than hashing the whole multi-GB file as one unit) improves dedup ratio when
 only part of a large file changes. Multi-GB files also need multipart/resumable upload as a
@@ -247,7 +247,7 @@ guarantees unilaterally.
 
 The metrics-ingestion path is the highest-QPS, most write-heavy component by a wide margin —
 thousands of concurrent jobs each flushing batched points every few seconds is structurally the
-same shape as the location-ping ingestion problem in case-studies/uber.md (many independent
+same shape as the location-ping ingestion problem in [case-studies/uber.md](../case-studies/uber.md) (many independent
 high-frequency producers, low value per individual write, aggregate volume is the challenge),
 and it scales the same way: horizontal sharding of the time-series store by run_id (keeping one
 run's series co-located for efficient range scans) and aggressive client-side batching before
@@ -260,6 +260,6 @@ artifacts are the primary cost levers, not database tuning. Metadata query perfo
 millions of historical runs requires the indexed relational store from the data model rather
 than scanning the artifact blob store or metrics time-series store directly — a query like
 "learning_rate < 0.01 AND eval_accuracy > 0.9" is exactly what a relational store with the
-right composite indexes (concepts/indexing.md) is built for and a blob or LSM-style
+right composite indexes ([concepts/indexing.md](../concepts/indexing.md)) is built for and a blob or LSM-style
 time-series store is not; keeping this query surface on its own right-sized store is what keeps
 the run browser fast as total run count grows into the millions.

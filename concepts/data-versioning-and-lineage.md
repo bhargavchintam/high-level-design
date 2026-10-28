@@ -18,7 +18,7 @@ files or row-groups changed, reconstructing any version by reading the base plus
 that point. At the same 2%/day change rate, that's roughly 500 GB + 365 x 10 GB ≈ 4.15 TB/year —
 a 40x+ reduction — which is why every mainstream table-versioning format uses a manifest/delta
 scheme rather than full snapshots, the same copy-on-write idea PagedAttention's block sharing uses
-for KV cache blocks (kv-cache-management.md) applied to storage instead of GPU memory. Feature
+for KV cache blocks ([kv-cache-management.md](kv-cache-management.md)) applied to storage instead of GPU memory. Feature
 versioning adds a second dimension on top of the data itself: the transformation logic that
 produces a feature from raw data is versioned separately, since the same raw data run through a
 changed transformation (a different window size, a bug fix in an aggregation) produces a different
@@ -36,7 +36,7 @@ fail to hold in production. Concretely: a rolling-30-day-count feature computed 
 more days of activity have accumulated. A point-in-time-correct join looks up the value whose
 recorded timestamp is the latest one still `<= T` from an append-only, timestamped feature log,
 never the latest value the table currently holds. This is exactly the mechanism
-../ml-system-design/feature-store.md's offline store implements, and it's the reason an offline
+[../ml-system-design/feature-store.md](../ml-system-design/feature-store.md)'s offline store implements, and it's the reason an offline
 feature store can't just be "the online store, but bigger" — the online store intentionally
 overwrites old values because it only answers "what's true now," while point-in-time correctness
 requires retaining history to answer "what was true at T" for arbitrary past T.
@@ -45,7 +45,7 @@ requires retaining history to answer "what was true at T" for arbitrary past T.
 
 Lineage is the graph connecting a raw source through every transformation to a final artifact:
 `raw table -> feature version -> training dataset version -> training run -> model version`, the
-same chain ../ml-system-design/ml-experiment-tracking-platform.md's lineage_edges table records.
+same chain [../ml-system-design/ml-experiment-tracking-platform.md](../ml-system-design/ml-experiment-tracking-platform.md)'s lineage_edges table records.
 Two practical uses drive most lineage tooling (OpenLineage is the common open standard): impact
 analysis (if an upstream source column is deprecated or found to be corrupted, which downstream
 features, datasets, and deployed models are affected — a graph traversal, not a manual audit) and
@@ -59,7 +59,7 @@ Versioning without lineage answers "what did this dataset look like at version 1
 models were trained on it"; lineage without versioning answers "this model came from this dataset"
 but not "what that dataset actually contained," since an unversioned, mutable source undermines the
 lineage pointer the moment the source changes underneath it. Both are needed for the reproducibility
-guarantee mlops-and-model-cicd.md's promotion gates and rollback path depend on — a registry can
+guarantee [mlops-and-model-cicd.md](mlops-and-model-cicd.md)'s promotion gates and rollback path depend on — a registry can
 faithfully record a dataset-version identifier next to a promoted model, but that record is only
 trustworthy if the versioning system underneath actually guarantees that identifier points at
 something immutable, months or years later, when an audit or an incident response needs to
