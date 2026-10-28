@@ -81,5 +81,8 @@ The [LLM serving diagram](README.md#example-llm-inference-serving) in the README
 
 - One doc, or one fix, per pull request.
 - Before you open it, check that every number has a unit and every box in a diagram is in the text.
+- Run `python scripts/check_links.py`. It checks that every link between the docs points to a file
+  that exists, and that other docs are linked, not named in plain text (`--fix` turns plain names
+  into links). CI runs the same check on every pull request.
 - By contributing you agree that your work is released under the
   [Creative Commons Attribution 4.0 International license](LICENSE) (CC BY 4.0).

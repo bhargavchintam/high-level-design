@@ -4,7 +4,7 @@
 
 ### Functional
 - Train a large model (assume a 70B-parameter decoder-only transformer, consistent with the
-  scale in llm-inference-serving.md) on a multi-trillion-token dataset across hundreds to
+  scale in [llm-inference-serving.md](llm-inference-serving.md)) on a multi-trillion-token dataset across hundreds to
   thousands of GPUs.
 - Checkpoint training state periodically such that a failure loses at most a bounded amount of
   progress (not the entire run) and training can resume from the last checkpoint.
@@ -171,7 +171,7 @@ alternatives. Data parallelism (each replica holds a full model copy, processes 
 data shard, gradients averaged across replicas) scales training throughput with data volume but
 does nothing to fit a model too large for one GPU's memory — that's the problem tensor and
 pipeline parallelism solve. Tensor parallelism splits individual layers' computation across
-GPUs (as in the serving case in llm-inference-serving.md), requiring high-bandwidth
+GPUs (as in the serving case in [llm-inference-serving.md](llm-inference-serving.md)), requiring high-bandwidth
 interconnect since every layer needs a synchronization step, which is why it's typically
 confined to GPUs within a single NVLink-connected node. Pipeline parallelism splits the model's
 layers themselves across groups of nodes (stage 1 on nodes A, stage 2 on nodes B, ...), needing

@@ -14,7 +14,7 @@ designs that pick a rollout strategy before the serving pattern is even settled.
   is the pattern people mean by default when they say "model serving," and it inherits all
   the usual online-system constraints: p99 matters more than average latency, and the
   serving path needs to degrade gracefully (fall back to a cached score or a simple
-  heuristic) rather than block the request if the model is slow. See load-balancing.md for
+  heuristic) rather than block the request if the model is slow. See [load-balancing.md](load-balancing.md) for
   how requests get distributed across model replicas.
 - Batch serving: score a large, fixed dataset offline on a schedule — nightly, hourly,
   whatever the freshness requirement allows. No per-request latency pressure at all; the
@@ -30,7 +30,7 @@ designs that pick a rollout strategy before the serving pattern is even settled.
   response in the same way a user's page load is. Typical shape: a Kafka-style pipeline
   where a consumer pulls transaction or event records, scores each one, and writes the
   result downstream (an alert queue, a feature store, another topic). See
-  message-queues.md for the underlying transport this pattern usually rides on.
+  [message-queues.md](message-queues.md) for the underlying transport this pattern usually rides on.
 
 ## Rollout patterns
 
@@ -53,7 +53,7 @@ into production without breaking things.
   traffic share toward whichever variant is performing best so far, balancing exploration of
   underperforming variants against exploitation of the current best. Contrast with a fixed
   A/B test, which commits to a static allocation (say 50/50) for the whole experiment
-  duration regardless of interim results — see ../ml-system-design/ab-testing-and-experimentation.md.
+  duration regardless of interim results — see [../ml-system-design/ab-testing-and-experimentation.md](../ml-system-design/ab-testing-and-experimentation.md).
   Bandits converge to the better variant faster and waste less traffic on a known-worse
   option, but that same adaptivity makes after-the-fact statistical analysis harder: because
   the allocation itself changed in response to the data, standard confidence-interval math
@@ -71,6 +71,6 @@ model can be shadow-tested against its predecessor for a few nightly runs before
 sets get diffed offline. A streaming fraud-scoring pipeline can run a bandit across two
 scoring models per transaction stream. The rollout pattern answers "how do we trust the new
 version," the serving pattern answers "how do predictions reach the point of use" — neither
-constrains the other. See ../ml-system-design/ad-click-prediction.md and
-../ml-system-design/ml-experiment-tracking-platform.md for concrete systems where both axes
+constrains the other. See [../ml-system-design/ad-click-prediction.md](../ml-system-design/ad-click-prediction.md) and
+[../ml-system-design/ml-experiment-tracking-platform.md](../ml-system-design/ml-experiment-tracking-platform.md) for concrete systems where both axes
 show up together.

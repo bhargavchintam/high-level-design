@@ -34,7 +34,7 @@
 
 ## Capacity Estimation
 
-Assume the platform manages releases for the same 200-model fleet as model-serving-platform.md,
+Assume the platform manages releases for the same 200-model fleet as [model-serving-platform.md](model-serving-platform.md),
 each rolling out changes at a conservative average of once/week → 200/7 ≈ **29 releases/day**
 started.
 
@@ -199,7 +199,7 @@ decision at an arbitrary elapsed-time cutoff regardless of how little data has a
 **Fast rollback mechanics.** Rollback has to be "revert traffic weight to the prior version," an
 operation against already-running infrastructure, not "redeploy the old version," which would
 reintroduce the multi-minute node-boot-and-weight-load latency covered in
-gpu-fleet-autoscaler.md — directly on the critical path of an incident response, which is exactly
+[gpu-fleet-autoscaler.md](gpu-fleet-autoscaler.md) — directly on the critical path of an incident response, which is exactly
 where that latency is least tolerable. This is why the previous champion version's serving
 infrastructure is deliberately kept warm, not torn down, through at least one full rollout cycle
 after a new version is promoted: the moment it's decommissioned, the next rollback (whether for
@@ -233,7 +233,7 @@ actually exercises anything. An embedding or retrieval model's canary is differe
 embedding output correctness isn't observable from the embedding vector itself (a vector is just
 numbers; there's no "error rate" on a vector), its canary compares downstream retrieval quality —
 recall@k against a small labeled set, using the same evaluation approach as
-rag-evaluation-platform.md — rather than a request-level latency/error metric. Both cases share
+[rag-evaluation-platform.md](rag-evaluation-platform.md) — rather than a request-level latency/error metric. Both cases share
 the same underlying principle as request/response canary (compare challenger against champion on
 a metric that actually reflects what the model is for, at increasing confidence before full
 cutover) while requiring a genuinely different comparison mechanism, which is why
@@ -246,7 +246,7 @@ Gate evaluation quality — avoiding both false-pass (a real regression slips th
 low-powered early stage) and false-hold (a good release gets stuck extending indefinitely on noisy
 metrics) — is the component most resistant to pure infrastructure scaling, and is fundamentally a
 per-model statistics-tuning problem, structurally similar to the alert-threshold-tuning bottleneck
-described in ml-monitoring-and-drift.md. The release orchestrator's state persistence and recovery
+described in [ml-monitoring-and-drift.md](ml-monitoring-and-drift.md). The release orchestrator's state persistence and recovery
 correctness matters more than its raw throughput at this concurrency (10-15 releases in flight at
 once) — a control-plane bug that loses or corrupts a single release's stage state can leave a
 model stuck mid-rollout, or worse, leave it serving an unvetted challenger version at full traffic

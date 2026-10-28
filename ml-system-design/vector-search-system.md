@@ -9,8 +9,8 @@
   update.
 - Support metadata filtering combined with vector similarity (e.g. "nearest neighbors, but only
   items in category X") — pure ANN search alone is often not the actual product requirement.
-- Serve as the retrieval backbone for other systems in this repo (recommendation-system.md's
-  candidate generation, rag-system.md's chunk retrieval) — i.e. this is infrastructure, not a
+- Serve as the retrieval backbone for other systems in this repo ([recommendation-system.md](recommendation-system.md)'s
+  candidate generation, [rag-system.md](rag-system.md)'s chunk retrieval) — i.e. this is infrastructure, not a
   standalone product surface.
 
 ### Non-functional
@@ -51,8 +51,8 @@ vectors is memory-expensive enough that hybrid approaches (IVF partitioning + PQ
 optionally with an HNSW graph only within each partition) are common at this scale rather than
 one flat HNSW graph over the whole corpus.
 
-Query volume: assume this index backs both a recommendation system (per recommendation-system.md,
-~10,400 QPS peak) and a RAG system (per rag-system.md, ~175 QPS peak) sharing infrastructure —
+Query volume: assume this index backs both a recommendation system (per [recommendation-system.md](recommendation-system.md),
+~10,400 QPS peak) and a RAG system (per [rag-system.md](rag-system.md), ~175 QPS peak) sharing infrastructure —
 call it ~11,000 QPS peak in aggregate, each query searching for k=50-500 candidates depending on
 caller.
 

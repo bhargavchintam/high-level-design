@@ -144,7 +144,7 @@ than presenting FCFS as sufficient.
 the seat is marked sold — this is a two-phase flow (hold seats first, charge second) precisely
 because you don't want to charge a user's card and then discover the seat is somehow gone, and
 you don't want to mark seats permanently sold before payment is confirmed. See
-case-studies/payment-system.md for how the payment step itself handles idempotency and
+[case-studies/payment-system.md](payment-system.md) for how the payment step itself handles idempotency and
 failure — a failed or ambiguous payment response here must not leave a seat stuck in `held`
 status indefinitely, which is exactly what the TTL sweep protects against.
 

@@ -115,7 +115,7 @@ shows up in sharded databases and caches.
 Writes can require acknowledgment from just the leader (`acks=1`, fast, small risk of loss on
 leader failure before followers catch up) or from a quorum/all in-sync replicas (`acks=all`,
 slower, durable even through a leader crash). This is the same latency/durability tradeoff
-that shows up in concepts/replication-and-consistency.md, applied to a log instead of a table.
+that shows up in [concepts/replication-and-consistency.md](../concepts/replication-and-consistency.md), applied to a log instead of a table.
 
 **Consumer groups and rebalancing.** Multiple consumers in the same group split the
 partitions of a topic between them — each partition is owned by exactly one consumer within
@@ -147,9 +147,9 @@ independent of message volume over time.
 Partition count is the primary lever for both throughput and consumer parallelism, but it's
 not free to increase after the fact — repartitioning an existing topic changes which broker
 and which consumer owns which keys, similar in spirit to resharding a database (see
-concepts/database-sharding.md), so partition count is usually set generously up front based on
+[concepts/database-sharding.md](../concepts/database-sharding.md)), so partition count is usually set generously up front based on
 target peak throughput rather than grown incrementally. Disk I/O per broker is the physical
 ceiling on a single node's contribution — sequential writes (the log-append pattern) are what
 make this tractable on spinning disks and even more so on SSDs, and is a big part of why
-log-structured storage (see concepts/indexing.md on LSM-trees) rather than in-place updates
+log-structured storage (see [concepts/indexing.md](../concepts/indexing.md) on LSM-trees) rather than in-place updates
 is the standard implementation choice for message brokers.

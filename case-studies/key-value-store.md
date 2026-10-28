@@ -9,7 +9,7 @@
 ### Non-functional
 - Horizontally scalable: adding nodes increases capacity and throughput linearly.
 - Highly available: writes and reads should succeed even during node failures or network
-  partitions (this is explicitly an AP system — see concepts/cap-theorem.md).
+  partitions (this is explicitly an AP system — see [concepts/cap-theorem.md](../concepts/cap-theorem.md)).
 - Low, predictable latency: single-digit milliseconds for get/put at p99.
 - Tunable consistency: some use cases want strong consistency at the cost of latency, others
   want to always accept writes.
@@ -78,12 +78,12 @@ replica_set         the N nodes (from consistent hashing) that hold this key
 Any node in the cluster can receive a request and act as coordinator — it looks up which
 nodes own the key via consistent hashing and forwards the operation to them. There is no
 leader election, no single write bottleneck; this is the defining trait of a leaderless,
-Dynamo-style design (see concepts/replication-and-consistency.md).
+Dynamo-style design (see [concepts/replication-and-consistency.md](../concepts/replication-and-consistency.md)).
 
 ## Deep Dives
 
 **Partitioning.** Keys are distributed across nodes with consistent hashing plus virtual nodes
-(see concepts/consistent-hashing.md) so adding or removing a node only remaps `~1/N` of keys
+(see [concepts/consistent-hashing.md](../concepts/consistent-hashing.md)) so adding or removing a node only remaps `~1/N` of keys
 instead of reshuffling everything. Each key's replica set is the N nodes encountered walking
 clockwise from the key's ring position.
 

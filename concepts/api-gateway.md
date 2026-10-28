@@ -20,7 +20,7 @@ path — `/users/*` to the user service, `/orders/*` to the order service.
   downstream services can trust an already-validated identity (often passed along as a header
   or inside the token) instead of each re-implementing auth.
 - Rate limiting: enforce per-client quotas before a request reaches any backend — see
-  rate-limiting.md.
+  [rate-limiting.md](rate-limiting.md).
 - Request/response transformation: adapt an external-facing API shape to whatever the
   internal service actually expects (useful when internal services evolve faster than the
   public contract should).

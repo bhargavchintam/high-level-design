@@ -6,7 +6,7 @@
 - Allocate GPU resources — whole GPUs or MIG-partitioned fractional GPUs — to heterogeneous
   workloads (multi-node training jobs, inference deployments, interactive dev sessions) submitted
   by many teams against one shared physical cluster. This is the allocation substrate that
-  llm-training-platform.md and multi-tenant-gpu-serving.md are both built on top of, not a
+  [llm-training-platform.md](llm-training-platform.md) and [multi-tenant-gpu-serving.md](multi-tenant-gpu-serving.md) are both built on top of, not a
   replacement for either.
 - Gang-schedule multi-GPU/multi-node jobs atomically: a job requesting N GPUs must receive all N
   simultaneously or none at all — a partial allocation for a synchronous distributed job is worse
@@ -35,7 +35,7 @@
   to an indefinite grace period that defeats the purpose of preemption.
 - Topology awareness: placement must respect network locality (NVLink within a node, faster
   intra-rack fabric, slower cross-rack fabric) because job performance — specifically
-  distributed-training-system.md's gradient all-reduce cost — depends heavily on how physically
+  [distributed-training-system.md](distributed-training-system.md)'s gradient all-reduce cost — depends heavily on how physically
   close the allocated GPUs are to each other, not just on GPU count.
 
 ## Capacity Estimation
@@ -51,7 +51,7 @@ of capacity," which is a much smaller and harder-to-verify set of valid placemen
 **Fragmentation, worked example.** Suppose the cluster has 15% of its 16,384 GPUs free (2,458
 GPUs) but scattered as 1-2 free GPUs per node across many partially-occupied nodes, rather than
 concentrated as free whole nodes. A job requesting an 8-GPU single-node allocation (needed for
-intra-node tensor parallelism, per distributed-training-system.md) cannot be placed at all despite
+intra-node tensor parallelism, per [distributed-training-system.md](distributed-training-system.md)) cannot be placed at all despite
 2,458 aggregate free GPUs existing — the usable capacity for that job shape is effectively zero.
 This is the concrete cost fragmentation imposes: aggregate utilization numbers alone can look
 healthy while the cluster is unable to admit the job shapes it actually receives.
@@ -61,7 +61,7 @@ instances. A queue of 500 lightweight inference/dev jobs, each needing roughly 1
 memory and compute, would require 500 whole GPUs without MIG. With MIG, the same 500 jobs fit on
 ⌈500/7⌉ ≈ 72 physical GPUs — a **~7x density gain** for that specific workload class, which is the
 core economic argument for MIG over dedicating whole GPUs to small workloads (cross-ref
-multi-tenant-gpu-serving.md's isolation deep dive for the tradeoff MIG makes to get this density).
+[multi-tenant-gpu-serving.md](multi-tenant-gpu-serving.md)'s isolation deep dive for the tradeoff MIG makes to get this density).
 
 **Preemption overhead.** If a preemption costs ~2 minutes of checkpoint-and-yield time on average
 and the cluster sees ~50 preemption events/day, that's 50 × 2 = 100 GPU-job-minutes/day of pure
@@ -173,8 +173,8 @@ while reserving whole free nodes for large gang jobs (rather than greedily filli
 has any free slot first) keeps large contiguous blocks available longer. Where fragmentation still
 accumulates, periodic defragmentation — checkpointing and migrating a subset of running jobs to
 consolidate free capacity — is a standing operational job, not a one-time fix, the same way
-compaction is a standing job for the KV cache paging in llm-inference-serving.md or the vector
-index in vector-search-system.md.
+compaction is a standing job for the KV cache paging in [llm-inference-serving.md](llm-inference-serving.md) or the vector
+index in [vector-search-system.md](vector-search-system.md).
 
 **Priority, preemption, and fairness.** Pure priority ordering can starve low-priority work
 indefinitely if higher-priority submissions never stop arriving, so the scheduler layers
@@ -195,7 +195,7 @@ type from whole-GPU capacity — a GPU already sliced into seven 1g.10gb MIG ins
 job that needs a full GPU without first draining and repartitioning it, an operation the scheduler
 should treat as expensive and rare, not something it does opportunistically mid-schedule.
 Software time-slicing is the more flexible alternative (any granularity, no hardware
-reconfiguration) but gives weaker isolation — cross-ref multi-tenant-gpu-serving.md's isolation
+reconfiguration) but gives weaker isolation — cross-ref [multi-tenant-gpu-serving.md](multi-tenant-gpu-serving.md)'s isolation
 deep dive for how that tradeoff plays out at the serving layer specifically.
 
 ## Bottlenecks & Scaling

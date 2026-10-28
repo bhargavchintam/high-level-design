@@ -31,7 +31,7 @@ Storage: 10B pages × 500 KB ≈ 5 PB of raw fetched content if kept in full; in
 this is processed (extracted text, stripped of markup, deduplicated) rather than stored
 verbatim, and content-hash deduplication (identical pages mirrored across multiple URLs is
 common) reduces this meaningfully, similar to the dedup story in
-case-studies/google-drive-dropbox.md.
+[case-studies/google-drive-dropbox.md](google-drive-dropbox.md).
 
 URL frontier size: with an average fanout of, say, 20 new links discovered per crawled page,
 the frontier (queue of URLs not yet crawled) can balloon far larger than the crawl budget
@@ -108,7 +108,7 @@ this is treated as a hard constraint, not a nice-to-have. The frontier is partit
 seconds per host otherwise), enforced independently of overall system throughput — the crawler
 can be fetching thousands of pages/sec in aggregate while never exceeding a handful of
 requests/sec against any single host. This is the same per-key rate limiting shape as
-concepts/rate-limiting.md, applied per-host instead of per-client.
+[concepts/rate-limiting.md](../concepts/rate-limiting.md), applied per-host instead of per-client.
 
 **Avoiding crawler traps.** Some sites generate effectively infinite URLs (calendar
 pagination, faceted search filters with combinable parameters, session IDs embedded in URLs

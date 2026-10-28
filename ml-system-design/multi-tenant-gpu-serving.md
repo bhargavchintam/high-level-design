@@ -5,7 +5,7 @@
 ### Functional
 - Serve many tenants' models — hundreds to thousands, ranging from high-traffic to nearly idle —
   on a shared pool of GPUs, with each tenant's deployment able to scale independently, including
-  scaling to zero when idle and back up on demand. Typically sits behind inference-gateway.md,
+  scaling to zero when idle and back up on demand. Typically sits behind [inference-gateway.md](inference-gateway.md),
   which routes requests to the correct tenant deployment; this document is about what happens once
   a request reaches the shared GPU substrate.
 - Guarantee resource isolation between tenants sharing physical GPU capacity, so one tenant's
@@ -39,7 +39,7 @@ top 50 tenants ≈ 70% of traffic (42K req/sec), the remaining ~2,950 tenants sh
 the time.
 
 **GPU fleet, head vs. long tail.** Top-50 tenants get near-dedicated capacity: at ~1.5
-GPU-equivalent average (higher than model-serving-platform.md's general 0.5 GPU-equivalent figure,
+GPU-equivalent average (higher than [model-serving-platform.md](model-serving-platform.md)'s general 0.5 GPU-equivalent figure,
 reflecting these tenants' higher individual traffic) → 50 × 1.5 = **75 GPU-equivalents**. The long
 tail of 2,950 tenants is served through fractional/MIG-partitioned sharing plus scale-to-zero, at
 roughly ~0.05 GPU-equivalent average once idle time is accounted for → 2,950 × 0.05 ≈ **148
@@ -135,7 +135,7 @@ fair_share_policy
 applied to GPU-time rather than network bandwidth: each tenant has a guaranteed minimum share (per
 their purchased tier) and can burst into currently-unused capacity up to a ceiling, but burst
 capacity is reclaimed the instant another tenant needs their guaranteed floor back. This is
-conceptually the same fairness problem gpu-cluster-scheduler.md solves for training jobs, applied
+conceptually the same fairness problem [gpu-cluster-scheduler.md](gpu-cluster-scheduler.md) solves for training jobs, applied
 to a workload with a very different shape — mostly short, bursty individual requests rather than
 long-running gang-scheduled jobs — which changes the rebalancing cadence from "occasional, over
 minutes" to "continuous, over seconds."
@@ -143,7 +143,7 @@ minutes" to "continuous, over seconds."
 **Isolation mechanisms.** MIG hardware partitioning gives the strongest isolation guarantee — a
 dedicated memory and compute slice with a hard SLA — at the cost of fixed partition granularity
 decided when the physical GPU is configured, not per request (cross-ref
-gpu-cluster-scheduler.md's MIG deep dive for the underlying partitioning mechanics this platform
+[gpu-cluster-scheduler.md](gpu-cluster-scheduler.md)'s MIG deep dive for the underlying partitioning mechanics this platform
 consumes). Process/container-level isolation with soft resource limits (cgroups, time-slicing) is
 more flexible — any granularity, no hardware reconfiguration — but weaker: a compute-bound
 neighbor can still cause latency jitter for a co-located tenant even under configured quotas,

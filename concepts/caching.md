@@ -10,7 +10,7 @@ staleness, and complexity.
 - Client-side: browser cache, mobile app cache. Zero network cost on hit, but you can't
   invalidate it remotely — you're stuck with whatever TTL you set.
 - CDN: caches static assets and sometimes API responses at edge locations close to users.
-  See cdn.md.
+  See [cdn.md](cdn.md).
 - Application-level (in-process): a hash map inside the app process. Fastest possible cache,
   but not shared across instances, and it disappears on every deploy.
 - Distributed cache: Redis or Memcached, shared across all app instances. Adds a network hop

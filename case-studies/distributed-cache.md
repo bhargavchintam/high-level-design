@@ -81,7 +81,7 @@ populates cache after) is the default because it's simple and the cache only eve
 what's actually been requested — no wasted memory on cold data. Write-through (write to cache
 and DB together) trades write latency for guaranteed freshness; worth it for data where a
 stale cache read after a write would visibly break the product (e.g. an inventory count right
-after checkout). See concepts/caching.md for the full comparison.
+after checkout). See [concepts/caching.md](../concepts/caching.md) for the full comparison.
 
 **Hot key mitigation.** Consistent hashing sends one key to one node — if that key is
 extremely popular (a trending post, a viral product), that single node's throughput becomes
@@ -100,7 +100,7 @@ adding random jitter to TTLs so keys don't expire in lockstep.
 room for a new key. LRU is the default and works well for most access patterns; Redis
 implements an approximated LRU (samples a small set of keys and evicts the oldest of the
 sample) rather than a strict global LRU list, because maintaining an exact recency order on
-every access would itself be a throughput bottleneck. See concepts/caching.md for LRU vs. LFU
+every access would itself be a throughput bottleneck. See [concepts/caching.md](../concepts/caching.md) for LRU vs. LFU
 tradeoffs.
 
 ## Bottlenecks & Scaling

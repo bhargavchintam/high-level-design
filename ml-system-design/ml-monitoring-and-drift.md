@@ -35,7 +35,7 @@
 ## Capacity Estimation
 
 Assume the platform monitors 200 production models (the same fleet as
-model-serving-platform.md), aggregate 100K predictions/sec across all of them.
+[model-serving-platform.md](model-serving-platform.md)), aggregate 100K predictions/sec across all of them.
 
 Prediction logging: monitoring can't log every single prediction at this volume without its own
 storage pipeline becoming a major cost center — a 1% sample of 100K/sec = 1,000/sec sampled
@@ -223,7 +223,7 @@ promising a uniform detection latency across a fleet of models with very differe
 latencies.
 
 **Shadow deployment as pre-production monitoring.** Shadow deployment (introduced in
-model-serving-platform.md as a rollout-safety mechanism) feeds the same monitoring
+[model-serving-platform.md](model-serving-platform.md) as a rollout-safety mechanism) feeds the same monitoring
 infrastructure described here — the candidate model's shadow predictions are compared against
 the production model's actual predictions on identical live inputs, surfacing prediction
 agreement rate, latency delta, and error rate before the candidate takes any real traffic. This

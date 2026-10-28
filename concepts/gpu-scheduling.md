@@ -15,7 +15,7 @@ A scheduler placing jobs onto an 8-GPU node has to treat each node as a bin and 
 request as an item to pack. The complication beyond plain bin-packing: many jobs don't just need
 N free GPUs anywhere in the cluster, they need N GPUs in the same NVLink/NVSwitch domain, because
 tensor-parallel jobs exchange partial results every layer and can't tolerate cross-node latency
-(see distributed-training.md). A node with 3 GPUs free can still be unusable for a pending 4-GPU
+(see [distributed-training.md](distributed-training.md)). A node with 3 GPUs free can still be unusable for a pending 4-GPU
 tensor-parallel job even though the cluster-wide free count looks fine — that's external
 fragmentation, and it compounds as job sizes get more heterogeneous. Bin-packing heuristics
 (best-fit: place a job on the node with the smallest sufficient gap, to keep large contiguous
@@ -29,7 +29,7 @@ maximally free for large ones, rather than spreading jobs evenly.
 ## Gang scheduling
 
 A distributed training job using data or tensor parallelism across 64 GPUs (see
-distributed-training.md) needs all 64 workers scheduled and running before the first all-reduce
+[distributed-training.md](distributed-training.md)) needs all 64 workers scheduled and running before the first all-reduce
 or cross-rank communication can happen at all — a partial allocation doesn't do partial useful
 work, it just holds resources while waiting. A scheduler that allocates GPUs one at a time as
 they free up, the way a normal job queue would, can deadlock: job A holds 32 GPUs waiting for 32
@@ -65,7 +65,7 @@ mechanisms share one physical GPU across multiple workloads:
 
 The general pattern — hard-partition when isolation matters, soft-share when only throughput
 matters — recurs in the model-serving fleet decisions covered in
-../ml-system-design/model-serving-platform.md, which bin-packs many small models onto shared GPU
+[../ml-system-design/model-serving-platform.md](../ml-system-design/model-serving-platform.md), which bin-packs many small models onto shared GPU
 capacity at the application level rather than the hardware level.
 
 ## Preemption
@@ -74,7 +74,7 @@ High-priority or latency-sensitive work (an inference endpoint that just started
 traffic) sometimes needs to reclaim GPUs from lower-priority work (an exploratory training run)
 already running. Preemption requires the lower-priority job to checkpoint its state and release
 the GPU, then resume later — for training this is a natural fit, since training jobs already
-checkpoint periodically for fault tolerance (see ../ml-system-design/ml-experiment-tracking-platform.md),
+checkpoint periodically for fault tolerance (see [../ml-system-design/ml-experiment-tracking-platform.md](../ml-system-design/ml-experiment-tracking-platform.md)),
 so preemption cost is bounded by checkpoint interval, not total progress lost. Cloud spot/preemptible
 GPU instances are this same mechanism exposed as a pricing tier: 60-90% cheaper than on-demand in
 exchange for the provider reclaiming the instance on short notice, which only pencils out for

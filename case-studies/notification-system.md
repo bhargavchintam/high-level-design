@@ -105,7 +105,7 @@ is the single most important structural decision in the architecture.
 **Fanout for high-reach events.** A single "breaking news" event targeting 50M users can't be
 50M synchronous API calls from the producing service — the event is published once, and a
 fanout worker expands it into per-user notification jobs pushed onto the channel queues, the
-same push-side fanout problem as case-studies/twitter-news-feed.md, just triggering delivery
+same push-side fanout problem as [case-studies/twitter-news-feed.md](twitter-news-feed.md), just triggering delivery
 jobs instead of populating a read cache. This fanout step itself needs to be horizontally
 parallelized (partition the recipient list across many fanout workers) to hit a 60-second
 delivery window at 50M scale.
@@ -114,7 +114,7 @@ delivery window at 50M scale.
 and have different failure semantics (a bad device token is a permanent failure, worth
 removing from `device_tokens`; a 5xx from the provider is transient, worth retrying with
 backoff). Each channel's worker pool needs its own rate limiter tuned to that provider's actual
-limits (see concepts/rate-limiting.md) — treating all three channels identically either
+limits (see [concepts/rate-limiting.md](../concepts/rate-limiting.md)) — treating all three channels identically either
 under-utilizes headroom on the more permissive ones or gets the stricter ones throttled/banned.
 
 **Idempotency and dedup.** At-least-once delivery through a queue means a worker crash after
@@ -136,7 +136,7 @@ total notification volume.
 
 **Delivery tracking and retries.** Transient failures (provider 5xx, timeout) get retried with
 exponential backoff up to a limit; after that, the notification is marked failed rather than
-retried indefinitely, and — same pattern as concepts/message-queues.md — persistently failing
+retried indefinitely, and — same pattern as [concepts/message-queues.md](../concepts/message-queues.md) — persistently failing
 messages go to a dead-letter queue for investigation rather than blocking the channel's main
 queue.
 

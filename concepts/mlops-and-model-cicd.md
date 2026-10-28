@@ -17,7 +17,7 @@ separate actions: a run finishing training just registers a candidate version; p
 `Staging` triggers deployment to a pre-production environment that mirrors production
 configuration (same serving stack, same feature pipeline, non-production traffic or a shadow feed)
 specifically so validation happens against the same conditions the model will actually run under,
-not a laptop notebook. See ../ml-system-design/ml-experiment-tracking-platform.md for the registry's
+not a laptop notebook. See [../ml-system-design/ml-experiment-tracking-platform.md](../ml-system-design/ml-experiment-tracking-platform.md) for the registry's
 data model and how a stage transition becomes the trigger that downstream deployment systems act on.
 
 ## Eval gates
@@ -39,7 +39,7 @@ baseline, not a fixed absolute threshold decided once and never revisited.
 Once a candidate clears eval gates, the deployment mechanism for getting it in front of real
 traffic safely is shadow deployment (mirror live traffic, compute predictions, never act on them)
 or canary deployment (route and act on a small traffic percentage, ramp up while watching guardrail
-metrics) — see model-serving-patterns.md for the full definitions and their tradeoffs, which apply
+metrics) — see [model-serving-patterns.md](model-serving-patterns.md) for the full definitions and their tradeoffs, which apply
 unchanged here. A typical ramp: shadow for a fixed window (hours to days) to validate behavioral
 consistency and operational health with zero user risk, then canary at 1% -> 10% -> 50% -> 100% of
 traffic, holding at each step until guardrail metrics (error rate, latency, and — where label
@@ -57,7 +57,7 @@ garbage-collected the moment a new one promotes — is what makes rollback a sec
 instead of a redeploy. This mirrors blue-green rollback in general software delivery: the old
 version never actually leaves, it just stops receiving traffic, so reverting is a routing change,
 not a rebuild. Rollback triggers are usually the same guardrail metrics the canary watches, plus
-signals from ongoing production monitoring after full rollout — see model-monitoring-and-drift.md
+signals from ongoing production monitoring after full rollout — see [model-monitoring-and-drift.md](model-monitoring-and-drift.md)
 for how a model already at 100% traffic gets flagged for demotion after a canary window has long
 since closed.
 
@@ -67,7 +67,7 @@ Every gate above is only meaningful if the artifact being evaluated can be trace
 what produced it — the code commit, the environment (container digest, not a loose dependency
 range), and the dataset/feature version it trained on. Without that, "roll back to the previous
 version" and "retrain to reproduce a flagged model's exact behavior for audit" both become
-unreliable. This is why model CI/CD depends on data-versioning-and-lineage.md as a prerequisite,
+unreliable. This is why model CI/CD depends on [data-versioning-and-lineage.md](data-versioning-and-lineage.md) as a prerequisite,
 not an optional nicety: a registry that faithfully records a dataset version pointer is only as
 trustworthy as the versioning system's guarantee that the pointed-to data hasn't silently changed
 underneath it.

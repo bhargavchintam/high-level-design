@@ -37,7 +37,7 @@ narrower and more situational theorem than it's often presented as in interviews
 - AP systems: Cassandra, DynamoDB, Riak. Choose these when uptime matters more than
   momentary staleness — shopping carts, social feeds, presence/status, view counters.
 - Systems aren't purely one or the other — Cassandra can be tuned toward C with quorum reads
-  and writes (see replication-and-consistency.md), and most "CP" systems remain available for
+  and writes (see [replication-and-consistency.md](replication-and-consistency.md)), and most "CP" systems remain available for
   reads on the majority side of a partition; it's really about what each system does on the
   minority side.
 

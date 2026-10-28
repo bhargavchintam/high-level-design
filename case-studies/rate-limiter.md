@@ -91,7 +91,7 @@ of inside the business logic.
 rate R tokens/sec. A request consumes 1 token; if the bucket's empty, reject. This allows
 short bursts up to B (a client idle for a while can send a burst) while enforcing a long-run
 average rate of R — closer to how real client behavior looks than a strict fixed window. See
-concepts/rate-limiting.md for how this compares to fixed window, sliding window, and leaky
+[concepts/rate-limiting.md](../concepts/rate-limiting.md) for how this compares to fixed window, sliding window, and leaky
 bucket.
 
 **Making the check atomic.** "Read current tokens, compute refill, check if >= 1, decrement,
@@ -121,7 +121,7 @@ approximation that fits the product.
 ## Bottlenecks & Scaling
 
 The Redis layer is the central bottleneck: shard it by client ID (consistent hashing, see
-concepts/consistent-hashing.md) so it scales horizontally, and run it as a proper cluster with
+[concepts/consistent-hashing.md](../concepts/consistent-hashing.md)) so it scales horizontally, and run it as a proper cluster with
 replication so a single node failure doesn't wipe out rate-limit state for the clients it
 owned (worst case on node loss: those clients get a fresh bucket, which is a minor,
 self-correcting problem, not a correctness disaster).

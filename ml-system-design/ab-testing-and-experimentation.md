@@ -39,12 +39,12 @@ dive) rather than a lookup-service call — a round trip per check at this volum
 Metric events: assume ~50 loggable events/user/day (impressions, clicks, conversions) tagged
 with active experiment context → 100M × 50 = 5B events/day → 5B / 86,400 ≈ 58,000/sec average,
 ~170,000/sec peak. This is the dominant load on the platform and sizes the ingestion pipeline
-(see case-studies/distributed-message-queue.md for the general shape of this problem).
+(see [case-studies/distributed-message-queue.md](../case-studies/distributed-message-queue.md) for the general shape of this problem).
 
 Assignment log: a write happens once per (user, experiment) pair, not per request. Assume ~20
 concurrently running experiments a given user is enrolled in at once, with ~5% daily churn as
 experiments launch/conclude → 100M × 20 × 5% ≈ 100M new/changed rows/day at ~100 bytes ≈ 10
-GB/day — small next to the metrics stream, sharded (see concepts/database-sharding.md) by
+GB/day — small next to the metrics stream, sharded (see [concepts/database-sharding.md](../concepts/database-sharding.md)) by
 user_id.
 
 Raw event storage: 5B events/day × ~200 bytes ≈ 1 TB/day before aggregation. Aggregated
@@ -104,7 +104,7 @@ model_rollout_config (extends experiment_config for ML rollout)
 variant from the cached assignment bundle — rather than joined downstream, avoiding a costly
 join between a raw event stream and a separately-stored assignment table at query time.
 `model_rollout_config.model_version` ties back to the model registry that tracks training runs
-(see ml-system-design/ml-experiment-tracking-platform.md); this platform only owns which version
+(see [ml-system-design/ml-experiment-tracking-platform.md](ml-experiment-tracking-platform.md)); this platform only owns which version
 is live and at what traffic percentage, not how it was trained.
 
 ## High-Level Architecture
@@ -154,7 +154,7 @@ the experiment's allocation percentage to pick a variant — rather than a state
 populated at first-encounter time. A pure function needs no coordination: it produces the same
 result on every device and in every datacenter, computed locally from a cached config bundle,
 with no dependency on a central service being reachable or consistent. This is the same
-underlying idea as consistent hashing (see concepts/consistent-hashing.md) — a deterministic
+underlying idea as consistent hashing (see [concepts/consistent-hashing.md](../concepts/consistent-hashing.md)) — a deterministic
 hash space partitioned into ranges, with a key mapped into it — except the "nodes" being mapped
 to are variants instead of servers, and the goal is stable assignment rather than balanced load.
 Salting with experiment_id (not just user_id) matters: it keeps a user's bucket independent
@@ -202,7 +202,7 @@ reaches full traffic. None of these stages need bespoke infrastructure — they'
 top of the same experiment_config / assignment / guardrail-monitor path used for a copy-change
 test, which is why gradual rollout stays cheap enough to be the default way any model reaches
 production rather than a special-cased, manually-run process (see also
-concepts/model-serving-patterns.md for the serving-side mechanics of shadow/canary traffic
+[concepts/model-serving-patterns.md](../concepts/model-serving-patterns.md) for the serving-side mechanics of shadow/canary traffic
 through a model server).
 
 ## Bottlenecks & Scaling
@@ -212,8 +212,8 @@ embarrassingly parallel and mostly resolved client-side, but every one of the ~1
 at peak has to be joined against which experiments and variants were active for that user at
 that moment, aggregated per experiment/variant/metric, and made available to a stats engine with
 low enough latency that guardrail breaches are caught in minutes, not hours. This is the same
-general stream-aggregation shape covered in case-studies/distributed-message-queue.md and
-ml-system-design/real-time-ml-pipeline.md — partition the event stream by user_id (so a single
+general stream-aggregation shape covered in [case-studies/distributed-message-queue.md](../case-studies/distributed-message-queue.md) and
+[ml-system-design/real-time-ml-pipeline.md](real-time-ml-pipeline.md) — partition the event stream by user_id (so a single
 user's events land on one partition, avoiding a cross-partition join), maintain rolling
 aggregates in the stream processor rather than re-scanning raw events per query, and treat
 `aggregated_results` as the only thing dashboards and the stats engine ever read.

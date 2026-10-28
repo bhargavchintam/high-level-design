@@ -35,7 +35,7 @@ Corpus: 50M source documents, average 2,000 tokens/doc. Chunked at 512 tokens wi
 overlap → roughly 5 chunks/doc → **250M chunks** total.
 
 Embeddings: dim 1024 (a mid-size embedding model), stored at fp16 → 250M × 1024 × 2 bytes ≈
-512 GB raw vector data. Product-quantized for the ANN index (see vector-search-system.md for the
+512 GB raw vector data. Product-quantized for the ANN index (see [vector-search-system.md](vector-search-system.md) for the
 general technique) down to roughly 100-150 GB — this is the number that determines whether the
 index fits in memory on a single large node or needs sharding across several.
 
@@ -50,7 +50,7 @@ than scoring candidates one at a time inline.
 
 Context assembly: top ~6 chunks × 512 tokens ≈ 3,000 tokens of retrieved context, plus system
 prompt and query, typically lands total prompt size around 3.5-4K tokens fed into the
-generation stage (see llm-inference-serving.md for what that costs downstream).
+generation stage (see [llm-inference-serving.md](llm-inference-serving.md) for what that costs downstream).
 
 Ingestion throughput: assume 200K new/updated documents/day needing embedding → ~1M chunks/day
 → ~12 chunks/sec average embedding throughput needed for steady-state ingestion, spiky in
@@ -195,7 +195,7 @@ that drifts from what the retrieved context actually says.
 ## Bottlenecks & Scaling
 
 The vector index is the component most sensitive to corpus growth — at 250M+ chunks it likely
-needs sharding (see vector-search-system.md), and every sharding decision trades index-build and
+needs sharding (see [vector-search-system.md](vector-search-system.md)), and every sharding decision trades index-build and
 memory cost against recall and per-query fan-out latency. The reranking stage is the main
 latency and cost lever between retrieval and generation — running a cross-encoder over top-k=50
 is far more expensive per query than the bi-encoder ANN search that produced those candidates,
@@ -203,7 +203,7 @@ so k is tuned to the smallest value that doesn't measurably hurt recall of the r
 Ingestion throughput needs to scale independently from query throughput — a bulk reprocessing
 event (schema change, embedding model upgrade) can spike ingestion load by orders of magnitude
 for a short window without affecting query traffic at all, so the two are provisioned and scaled
-as separate pools rather than one shared fleet. Generation cost (see llm-inference-serving.md)
+as separate pools rather than one shared fleet. Generation cost (see [llm-inference-serving.md](llm-inference-serving.md))
 typically dominates total per-query cost once context length grows past a few thousand tokens,
 which is the practical pressure keeping context-assembly token budgets tight rather than simply
 stuffing in every plausibly-relevant chunk.

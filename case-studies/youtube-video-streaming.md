@@ -68,7 +68,7 @@ renditions
 ```
 
 Video bytes and their renditions live entirely in object storage behind a CDN, exactly like
-the media-storage pattern in case-studies/instagram.md, scaled up — metadata in a database,
+the media-storage pattern in [case-studies/instagram.md](instagram.md), scaled up — metadata in a database,
 bytes never touch the database.
 
 ## High-Level Architecture
@@ -104,7 +104,7 @@ per target resolution/bitrate combination), which parallelize naturally across a
 segment-level parallelism, transcoding different time ranges of the same video concurrently on
 different workers, for very long videos). This is CPU/GPU-bound work, entirely decoupled from
 the upload request itself via the same async-processing pattern as
-case-studies/instagram.md — the user sees "processing," not a blocked upload request.
+[case-studies/instagram.md](instagram.md) — the user sees "processing," not a blocked upload request.
 
 **Adaptive bitrate streaming.** The video is encoded at multiple resolution/bitrate tiers and
 sliced into short segments (2-10 seconds each). The client's player continuously measures
